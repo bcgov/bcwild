@@ -1,0 +1,23 @@
+{
+  "QA": {
+    "username": "root",     
+    "password": "password",
+    "database": "wild-life",
+     "host": "localhost",
+    "dialect": "mysql"
+  },
+  "local": {
+   "username": "root",     
+    "password": "password",
+    "database": "wild-life",
+     "host": "localhost",
+    "dialect": "mysql"
+  },
+  "UAT": {
+   "username": "root",     
+    "password": "password",
+    "database": "wild-life",
+     "host": "localhost",
+    "dialect": "mysql"
+  }
+}
