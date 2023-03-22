@@ -26,6 +26,8 @@ const login = async (req) => {
         const signUprequest = await customFindAll(User,{status:"pending"});
         const tokens = signToken({ id: getLoginData.id, email: getLoginData.email, username: getLoginData.username,role:getLoginData.role })
         getLoginData = getLoginData.dataValues;
+        delete getLoginData["password"];
+        delete getLoginData["password_reset_key"];
         getLoginData.tokens = tokens
         getLoginData.signUprequests=signUprequest.count
         return getLoginData

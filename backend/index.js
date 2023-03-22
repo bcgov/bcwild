@@ -7,7 +7,7 @@
 const http = require("http");
 const app = require("./express");
 
-const { app_setting } = require("./src/config/config.js");   //Mayank
+const { app_setting } = require("./src/config/config.js");
 
 
 /**

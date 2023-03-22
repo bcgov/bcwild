@@ -3,7 +3,7 @@ const { InternalServerError } = require("../errorHandler/customErrorHandlers");
 
 require("dotenv").config();
 var transporter = nodemailer.createTransport({
-    host: "smtp.fatcow.com",
+    host: "smtp.gmail.com",
     port: 465,
     secure: true, // upgrade later with STARTTLS
     auth: {
@@ -57,6 +57,7 @@ const signupApprovalMail = (email,name,status) => {
             return info;
         })
         .catch((err) => {
+            console.log(err)
             throw new InternalServerError(
                 "Email cannot send, please try again in some time"
             );

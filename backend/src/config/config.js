@@ -1,13 +1,10 @@
 const dotenv = require('dotenv')
 const envFound = dotenv.config();
 
-// require ('custom-env').env('test')
-
 if (envFound.error) {
     // This error should crash whole process
     throw new Error("@  Couldn't find .env file  @");
 }
-// const dataSecurity = require("../helpers/encrypt-decrypt");
 
 const DB_NAME = (process.env.DB_NAME)
 const DB_USER= (process.env.DB_USER)
@@ -33,7 +30,7 @@ module.exports = {
         debug: process.env.DB_DEBUG || false
     },
     auth: {
-        jwt_secret: 'c++v!!!l000)()ddd()s@S(j(k(l(m()a)j)m',
+        jwt_secret: process.env.JWT_SECRET_KEY || 'c++v!!!l000)()ddd()s@S(j(k(l(m()a)j)m',
         jwt_expiresin: process.env.JWT_EXPIRES_IN || '1d',
         jwt_auth_header_name: 'authorization',
         jwt_auth_value_prefix: 'Bearer',

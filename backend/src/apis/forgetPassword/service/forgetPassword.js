@@ -66,7 +66,11 @@ const resetPassword = async (req) => {
         if (transaction) {
             await transaction.rollback();
         }
-        customErrors(error.name, error.message)
+        let errorMessage = error.message
+        if(error.status==404){
+            errorMessage = "Reset link is expired"
+        }
+        customErrors(error.name, errorMessage)
     }
 
 };

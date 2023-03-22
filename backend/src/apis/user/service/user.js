@@ -7,6 +7,7 @@ const User = require("../model/user");
 const { AlreadyExistError, UnauthorizedError, NotFoundError, BadRequestError } = require("../../../errorHandler/customErrorHandlers");
 const { signToken } = require("../../../helpers/auth");
 const { generateHash,validPassword } = require("../../../helpers/passwordHash");
+const { Op } = require('sequelize')
 const registration = async (req) => {
     let transaction;
     try {
@@ -17,7 +18,7 @@ const registration = async (req) => {
         if(error) throw new BadRequestError(error.message)
 
         //existing user
-        const isExistData = await dataExist(User,[{ email: email ,  username: username }],null)
+        const isExistData = await dataExist(User,{[Op.or]:[{ email: email} ,{username: username }]},null)
 
         if (isExistData) throw new AlreadyExistError("User is already exist")
 
@@ -28,7 +29,7 @@ const registration = async (req) => {
         transaction = await sequelize.transaction()
         //Inserting data
         const registerData = await customInsert(User, { ...req.body, password:hashPassword }, { transaction })
-
+        delete registerData.dataValues["password"];
         const fullName = `${first_name} ${last_name}`
         //sending mail
         await registerMail(email, fullName)
@@ -68,6 +69,8 @@ const login = async (req) => {
     if (validCredentials) {
         const tokens = signToken({ id: getLoginData.id, email: getLoginData.email, username: getLoginData.username })
         getLoginData = getLoginData.dataValues;
+        delete getLoginData["password"];
+        delete getLoginData["password_reset_key"];
         getLoginData.tokens = tokens
         return getLoginData
 

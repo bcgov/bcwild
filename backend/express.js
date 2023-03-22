@@ -31,11 +31,6 @@ app.use(cors());
 
 app.use(require("./src/routes"));
 
-// Cron job
-// require("./helpers").deleteDoc;      //Mayank
-// require("./helpers").esignAudit;
-// require("./helpers").failedDocCron;
-
 process.on("SIGINT", () => {
   process.exit();
 });
@@ -58,9 +53,6 @@ app.use(cookieParser());
 
 //serving public file
 app.use(express.static(__dirname));
-
-// our custom api
-// app.use(require("./router"));    //Mayank
 
 app.use((req, res, next) => {
   const err = new Error("Not Found");
