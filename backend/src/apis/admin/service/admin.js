@@ -1,7 +1,7 @@
 const { BadRequestError, UnauthorizedError } = require("../../../errorHandler/customErrorHandlers");
 const {loginValidation} = require("../validation/admin")
 const {validPassword } = require("../../../helpers/passwordHash");
-const { dataExist } = require("../../../helpers/commonSequelizeQueries")
+const { dataExist, customFindAll } = require("../../../helpers/commonSequelizeQueries")
 const User = require("../../user/model/user");
 const { signToken } = require("../../../helpers/auth");
 
@@ -21,9 +21,13 @@ const login = async (req) => {
     const validCredentials = await validPassword(password,getLoginData?.password)
 
     if (validCredentials) {
+
+        //getting sinup request count
+        const signUprequest = await customFindAll(User,{status:"pending"});
         const tokens = signToken({ id: getLoginData.id, email: getLoginData.email, username: getLoginData.username,role:getLoginData.role })
         getLoginData = getLoginData.dataValues;
         getLoginData.tokens = tokens
+        getLoginData.signUprequests=signUprequest.count
         return getLoginData
 
     } else {

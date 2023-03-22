@@ -65,6 +65,7 @@ const signupApprovalMail = (email,name,status) => {
     return mailsend;
 };
 
+//reset password mail
 const resetMail = (email,name,resetKey) => {
     let mailoptionsuccess = {
         from: {
@@ -75,7 +76,7 @@ const resetMail = (email,name,resetKey) => {
         subject: "Reset password",
         html: `<p>Hi ${name},</p>
         <p>
-        To Reset Password   <a href="${url}${resetKey}">click here</a>
+        To Reset Password   <a href="${process.env.RESET_PASSWORD_URL}/${resetKey}">click here</a>
         </p>        
         <p>If you did not request this email you can safely ignore it.</p>`
     };

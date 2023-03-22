@@ -3,8 +3,11 @@ const User = require("../../user/model/user");
 const { sequelize } = require("../../../config/database");
 const { resetMail } = require("../../../helpers/send-email");
 const { BadRequestError, NotFoundError } = require("../../../errorHandler/customErrorHandlers");
+const {customErrors}=require("../../../errorHandler/error");
 const jwtDecode = require("jwt-decode");
-const forgetPassword = async (req, res) => {
+const { signToken } = require("../../../helpers/auth");
+const { generateHash } = require("../../../helpers/passwordHash");
+const forgetPassword = async (req) => {
     let transaction;
     try {
 
@@ -16,7 +19,7 @@ const forgetPassword = async (req, res) => {
 
         //checking registered user
         const userData = await dataExist(User, { email: email });
-        if(!userData) throw new NotFoundError("User is not found")
+        if (!userData) throw new NotFoundError("User is not found")
 
         //Setting ResetKey
         let key = signToken({ id: userData.id, email: email });
@@ -24,11 +27,11 @@ const forgetPassword = async (req, res) => {
 
         //Initiate transaction
         transaction = await sequelize.transaction()
-        const updateUser = await customUpdate(User, { where: where }, { password_reset_key: resetKey },transaction);
+        const updateUser = await customUpdate(User, { email: email }, { password_reset_key: resetKey }, transaction);
         const { first_name, last_name } = updateUser
         await resetMail(email, first_name + " " + last_name, resetKey)
-        await transaction.commit()
-        return data
+        await transaction.commit();
+        return updateUser
     } catch (error) {
         if (transaction) {
             await transaction.rollback();
@@ -38,28 +41,37 @@ const forgetPassword = async (req, res) => {
 
 }
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req) => {
+    let transaction;
+    try {
 
-    const {resetKey} = req.query;
-    const decodedId = jwtDecode(resetKey);
-    let id = decodedId.data.id;
-    let { password, type } = req.body;
-  
-    if (!password) {
-      throw new BadRequestError("Enter required fields");
+        const { resetKey } = req.query;
+        let { password } = req.body;
+
+        if (!password || !resetKey) {
+            throw new BadRequestError("Enter required fields");
+        }
+
+        const decodedId = jwtDecode(resetKey);
+        let id = decodedId.data.id;
+
+        const hashPassword = await generateHash(password)
+        //Initiate transaction
+        transaction = await sequelize.transaction()
+        const data = await customUpdate(User, { id: id, password_reset_key: resetKey }, { password: hashPassword, password_reset_key: null });
+        await transaction.commit()
+        return data;
+
+    } catch (error) {
+        if (transaction) {
+            await transaction.rollback();
+        }
+        customErrors(error.name, error.message)
     }
 
-    //checking registered user
-    //let user = await customFindOne(modelName, { where: where });
-      const data = await customUpdate(
-        modelName,
-        { where: where,individualHooks:true },
-        { password: password,password_reset_key:null }
-      );
-      return data;
-    
-  };
+};
 
 module.exports = {
-    forgetPassword
+    forgetPassword,
+    resetPassword
 }
