@@ -9,7 +9,7 @@ const registrationValidation = (data) => {
         .trim()
         .email()
         .required()
-        .error(new Error("Email is required and should be in valid format")),
+        .error(new BadRequestError("Email is required and should be in valid format")),
         username: Joi.string().required().min(5).error(new BadRequestError("Username is required")),
         contact_number: Joi.string().required().error(new BadRequestError("Contact number is required")),
         password: Joi.string()
@@ -27,7 +27,7 @@ const registrationValidation = (data) => {
 
 const loginValidation = (data) => {
     const schema = Joi.object({
-        username: Joi.string().required().min(5).error(new BadRequestError("Username is required")),
+        username: Joi.string().required().error(new BadRequestError("Username is required")),
         password: Joi.string().required().error(new BadRequestError("Password is required"))
     }).unknown();
     return schema.validate(data);

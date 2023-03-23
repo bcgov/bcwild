@@ -8,6 +8,7 @@ const { AlreadyExistError, UnauthorizedError, NotFoundError, BadRequestError } =
 const { signToken } = require("../../../helpers/auth");
 const { generateHash,validPassword } = require("../../../helpers/passwordHash");
 const { Op } = require('sequelize')
+const jwtDecode = require("jwt-decode");
 const registration = async (req) => {
     let transaction;
     try {
@@ -79,7 +80,17 @@ const login = async (req) => {
     }
 }
 
+const generateAccessToken = async(req)=>{
+
+    const {refreshToken} = req.body;
+    let tokenData = jwtDecode(refreshToken);
+    tokenData = tokenData.data
+    const tokens = signToken({ id: tokenData.id, email: tokenData.email, username: tokenData.username,role:tokenData.role })
+    return tokens;
+}
+
 module.exports = {
     registration,
-    login
+    login,
+    generateAccessToken
 }

@@ -1,14 +1,15 @@
 const router = require('express').Router()
 const controller = require("../apis/forgetPassword/api/forgetPassword")
 const { successResponse, errorResponse } = require('../helpers/apiResponse')
+const { isAuthorized } = require('../helpers/auth')
 router.post('/forgotPassword',forgotPassword)
-router.post('/resetPassword',resetPassword)
+router.post('/resetPassword',isAuthorized,resetPassword)
 
 async function forgotPassword(req, res) {
     try {
         const result = await controller.forgetPassword(req, res);
 
-        successResponse("Reset link send on your email id successfully", result, res);
+        successResponse("Reset password sent on your email id successfully", {}, res);
     } catch (error) {
 
         errorResponse(error, res);

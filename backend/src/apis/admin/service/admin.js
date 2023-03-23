@@ -4,6 +4,7 @@ const {validPassword } = require("../../../helpers/passwordHash");
 const { dataExist, customFindAll } = require("../../../helpers/commonSequelizeQueries")
 const User = require("../../user/model/user");
 const { signToken } = require("../../../helpers/auth");
+const ProjectAccess = require("../../project/model/projectAccess");
 
 const login = async (req) => {
 
@@ -24,12 +25,14 @@ const login = async (req) => {
 
         //getting sinup request count
         const signUprequest = await customFindAll(User,{status:"pending"});
+        const projectRequest = await customFindAll(ProjectAccess,{status:"pending"});
         const tokens = signToken({ id: getLoginData.id, email: getLoginData.email, username: getLoginData.username,role:getLoginData.role })
         getLoginData = getLoginData.dataValues;
         delete getLoginData["password"];
         delete getLoginData["password_reset_key"];
         getLoginData.tokens = tokens
         getLoginData.signUprequests=signUprequest.count
+        getLoginData.projectRequests=projectRequest.count
         return getLoginData
 
     } else {

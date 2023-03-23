@@ -9,7 +9,7 @@ const signupRequestsHandler = async(req)=>{
     let transaction;
     try{
         const {id,status} = req.body;
-        if(req.decoded.role!="admin") throw new UnauthorizedError("Unauthorized access")
+        if(req.decoded.role!="admin") throw new UnauthorizedError("Not Authorized to access this resource!")
 
         //validation
         const {error} = signupRequestValidation(req.body)
@@ -35,7 +35,7 @@ const signupRequestsHandler = async(req)=>{
 const showSignupRequests = async(req)=>{    
     const {page,page_size} = req.query;
 
-    if(req.decoded.role!="admin") throw new UnauthorizedError("Unauthorized access")
+    if(req.decoded.role!="admin") throw new UnauthorizedError("Not Authorized to access this resource!")
     const signUpRequestsData = await customFindAll(User,{status:"pending",role:"user"},null,page,page_size,["id","first_name","last_name","username","email"])
 
     return signUpRequestsData

@@ -31,11 +31,11 @@ module.exports = {
     },
     auth: {
         jwt_secret: process.env.JWT_SECRET_KEY || 'c++v!!!l000)()ddd()s@S(j(k(l(m()a)j)m',
-        jwt_expiresin: process.env.JWT_EXPIRES_IN || '1d',
+        jwt_expiresin: process.env.JWT_EXPIRES_IN || '1h',
         jwt_auth_header_name: 'authorization',
         jwt_auth_value_prefix: 'Bearer',
         jwt_refresh_Secret: process.env.JWT_SECRET_KEY || 'c++v!!!l000)()ddd()s@S(j(k(l(m()a)j)o',
-        jwt_refresh_expiresin: process.env.JWT_EXPIRES_IN || '1d',
+        jwt_refresh_expiresin: process.env.JWT_REFRESH_EXPIRES_IN || '1',
         jwt_refresh_auth_header_name: 'x-refresh-token',
     }
 

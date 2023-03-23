@@ -4,9 +4,9 @@ const { sequelize } = require("../../../config/database");
 const { resetMail } = require("../../../helpers/send-email");
 const { BadRequestError, NotFoundError } = require("../../../errorHandler/customErrorHandlers");
 const {customErrors}=require("../../../errorHandler/error");
-const jwtDecode = require("jwt-decode");
-const { signToken } = require("../../../helpers/auth");
 const { generateHash } = require("../../../helpers/passwordHash");
+const { resetPasswordValidation } = require("../validation/forgetPassword");
+const crypto = require("crypto")
 const forgetPassword = async (req) => {
     let transaction;
     try {
@@ -21,15 +21,14 @@ const forgetPassword = async (req) => {
         const userData = await dataExist(User, { email: email });
         if (!userData) throw new NotFoundError("User is not found")
 
-        //Setting ResetKey
-        let key = signToken({ id: userData.id, email: email });
-        let resetKey = key.refreshToken;
+        const password = crypto.randomBytes(4).toString('hex')
 
+        const hashPassword = await generateHash(password)
         //Initiate transaction
         transaction = await sequelize.transaction()
-        const updateUser = await customUpdate(User, { email: email }, { password_reset_key: resetKey }, transaction);
+        const updateUser = await customUpdate(User, { email: email }, { password: hashPassword }, transaction);
         const { first_name, last_name } = updateUser
-        await resetMail(email, first_name + " " + last_name, resetKey)
+        await resetMail(email, first_name + " " + last_name, password)
         await transaction.commit();
         return updateUser
     } catch (error) {
@@ -45,20 +44,19 @@ const resetPassword = async (req) => {
     let transaction;
     try {
 
-        const { resetKey } = req.query;
-        let { password } = req.body;
+        let { new_password,confirm_password } = req.body;
 
-        if (!password || !resetKey) {
-            throw new BadRequestError("Enter required fields");
-        }
+        //validation
+        const {error} = resetPasswordValidation(req.body)
 
-        const decodedId = jwtDecode(resetKey);
-        let id = decodedId.data.id;
+        if(error) throw new BadRequestError(error.message)
 
-        const hashPassword = await generateHash(password)
+        let id = req.decoded.id;
+
+        const hashPassword = await generateHash(new_password)
         //Initiate transaction
         transaction = await sequelize.transaction()
-        const data = await customUpdate(User, { id: id, password_reset_key: resetKey }, { password: hashPassword, password_reset_key: null });
+        const data = await customUpdate(User, { id: id }, { password: hashPassword });
         await transaction.commit()
         return data;
 
@@ -66,11 +64,7 @@ const resetPassword = async (req) => {
         if (transaction) {
             await transaction.rollback();
         }
-        let errorMessage = error.message
-        if(error.status==404){
-            errorMessage = "Reset link is expired"
-        }
-        customErrors(error.name, errorMessage)
+        customErrors(error.name, error.message)
     }
 
 };
