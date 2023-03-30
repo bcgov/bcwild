@@ -13,23 +13,24 @@ const Project = db.sequelize.define(
             type: Sequelize.INTEGER,
         },
         username: {
-            type: Sequelize.STRING(50)
+            type: Sequelize.STRING(20)
         },
         project_id: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(20),
             unique: true,
             allowNull: false
         },
         study_area: {
-            type: Sequelize.STRING(200),
+            type: Sequelize.STRING(20),
             allowNull: false,
         },
         survey_id: {
-            type: Sequelize.STRING(25),
+            type: Sequelize.STRING(20),
             allowNull: false
         },
         creation_date:{
-            type: Sequelize.STRING(25)
+            type: Sequelize.DATE,
+            allowNull:false
         }
     },
     { timestamps: true }
@@ -42,5 +43,5 @@ Project.belongsTo(User,{
     as:"user"
 })
 
-Project.sync().then()
+Project.sync({force:true}).then()
 module.exports = Project;

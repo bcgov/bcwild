@@ -14,11 +14,11 @@ const ProjectAccess = db.sequelize.define(
             type: Sequelize.INTEGER,
         },
         username: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(20),
             allowNull: false
         },
         project_id: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(20),
             allowNull: false
         },
 
@@ -46,5 +46,5 @@ ProjectAccess.belongsTo(Project,{
     as:"project"
 })
 
-ProjectAccess.sync().then()
+ProjectAccess.sync({force:true}).then()
 module.exports = ProjectAccess;

@@ -9,7 +9,7 @@ const { BadRequestError, UnauthorizedError, AlreadyExistError } = require("../..
 const addProject = async (req) => {
     let transaction;
     try {
-        const { username, project_id, study_area, survey_id, creation_date } = req.body;
+        let { username, project_id, study_area, survey_id, creation_date } = req.body;
 
         //validation
         const { error } = projectAddValidation(req.body)
