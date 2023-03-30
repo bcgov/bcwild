@@ -43,5 +43,5 @@ Project.belongsTo(User,{
     as:"user"
 })
 
-Project.sync({force:true}).then()
+//Project.sync({alter:true}).then()
 module.exports = Project;

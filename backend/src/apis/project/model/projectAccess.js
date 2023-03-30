@@ -46,5 +46,5 @@ ProjectAccess.belongsTo(Project,{
     as:"project"
 })
 
-ProjectAccess.sync({force:true}).then()
+//ProjectAccess.sync({alter:true}).then()
 module.exports = ProjectAccess;
