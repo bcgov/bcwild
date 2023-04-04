@@ -10,7 +10,7 @@ const Project = db.sequelize.define(
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
         },
         username: {
             type: Sequelize.STRING(20)
@@ -33,7 +33,7 @@ const Project = db.sequelize.define(
             allowNull:false
         }
     },
-    { timestamps: true }
+    { timestamps: true,underscored: true }
 );
 
 
@@ -43,5 +43,4 @@ Project.belongsTo(User,{
     as:"user"
 })
 
-//Project.sync({alter:true}).then()
 module.exports = Project;

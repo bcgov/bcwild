@@ -1,7 +1,7 @@
 const { NotFoundError } = require("../errorHandler/customErrorHandlers");
 
-const dataExist = async (model, where, include) => {
-    const item = await model.findOne({ where: where, inlude: include });
+const dataExist = async (model, where, include,attributes) => {
+    const item = await model.findOne({ where: where, inlude: include,attributes:attributes });
     return item;
 };
 

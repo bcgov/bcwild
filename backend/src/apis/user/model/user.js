@@ -11,7 +11,7 @@ const User = db.sequelize.define(
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
         },
         email: {
             type: Sequelize.STRING(75),
@@ -51,11 +51,12 @@ const User = db.sequelize.define(
             allowNull: false,
             defaultValue: "pending"
         }
+
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        underscored: true
+    }
 );
-
-
-//User.sync({alter:true}).then();
 
 module.exports = User;

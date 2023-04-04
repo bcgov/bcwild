@@ -96,8 +96,42 @@ const resetMail = (email,name,password) => {
     return mailsend;
 };
 
+//data export
+const dataExportMail = (email,name,file) => {
+    let mailoptionsuccess = {
+        from: {
+            name: "WildLife",
+            address: process.env.EMAIL
+        },
+        to: email,
+        subject: "Data export in CSV",
+        html: `<p>Hi ${name},</p>
+        <p>
+        Thank you for the request,Please find the attached CSV file.
+        </p> `,
+        attachments:[{
+            filename:"dataExport.csv",
+            content:file
+        }]      
+    };
+
+    const mailsend = transporter
+        .sendMail(mailoptionsuccess)
+        .then((info) => {
+            return info;
+        })
+        .catch((err) => {
+            throw new InternalServerError(
+                "Email cannot send, please try again in some time"
+            );
+        });
+
+    return mailsend;
+};
+
 module.exports = {
     registerMail,
     signupApprovalMail,
-    resetMail
+    resetMail,
+    dataExportMail
 }

@@ -23,7 +23,11 @@ const registration = async (req) => {
         //existing user
         const isExistData = await dataExist(User, { [Op.or]: [{ email: email }, { username: username }] }, null)
 
-        if (isExistData) throw new AlreadyExistError("User is already exist")
+
+        if (isExistData){
+            let message = isExistData.username==username ?"This username is already registered" : "This email is already registered"
+            throw new AlreadyExistError(message)
+        } 
 
 
         const hashPassword = await generateHash(password)
