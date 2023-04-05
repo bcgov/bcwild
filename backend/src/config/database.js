@@ -16,7 +16,7 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 db.DataTypes = Sequelize.DataTypes;
 
-// sequelize.sync({force:true}).then(data=>{
+// sequelize.sync().then(data=>{
 //   console.log("Sync Complete")
 // }).catch(err=>{
 //   console.log("Error in syncing",err)
