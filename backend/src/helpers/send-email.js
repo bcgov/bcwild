@@ -13,7 +13,7 @@ var transporter = nodemailer.createTransport({
     tls: { rejectUnauthorized: false },
 });
 
-const registerMail = (email,name) => {
+const registerMail = (email,name,username) => {
     let mailoptionsuccess = {
         from: {
             name: "WildLife",
@@ -22,7 +22,7 @@ const registerMail = (email,name) => {
         to: email,
         subject: "Registration successful",
         html: `<p>Hi ${name},</p>
-        <p>You have been successfully registered on WildLife</p>`
+        <p>You have been successfully registered on WildLife. Please use username: <b>${username}</b> for login.</p>`
     };
 
     const mailsend = transporter

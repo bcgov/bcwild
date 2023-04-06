@@ -40,7 +40,7 @@ const registration = async (req) => {
         delete registerData.dataValues["password"];
         const fullName = `${first_name} ${last_name}`
         //sending mail
-        await registerMail(email, fullName)
+        await registerMail(email, fullName,username)
 
         await transaction.commit()
         return registerData
