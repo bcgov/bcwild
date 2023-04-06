@@ -7,20 +7,29 @@ import { BackHandler } from 'react-native';
 
 const DashboardScreen = ({route,navigation}) => {
   const { admin } = route.params;
+  
 
-  useEffect(() => {
-    const backAction = () => {
-      BackHandler.exitApp();
-      return true;
-    };
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     BackHandler.exitApp();
+  //     return true;
+  //   };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction
+  //   );
+  //   return () => backHandler.remove();
+  // }, []);
 
-    return () => backHandler.remove();
-  }, []);
+  
+  const handleApproveSignupReqs = () => {
+    navigation.navigate('ApproveSignupAccess');
+  }
+
+  const handleAddProject = () => {
+    navigation.navigate('AddProject');
+  }
 
   const showAlert=(title, message)=> {
     Alert.alert(
@@ -49,7 +58,6 @@ const DashboardScreen = ({route,navigation}) => {
     await EncryptedStorage.clear()
     .then(() => console.log('success'))
     .catch(err => console.log(err));
-  
     navigation.navigate('Login');
   };
 
@@ -70,8 +78,11 @@ const DashboardScreen = ({route,navigation}) => {
       </View>
 
       <View style={{flex:1 ,marginTop:90, flexDirection:'row',alignItems:'center'}}>
+       
          <Image style={{height:15,width:15,marginLeft:20}} source={require('../assets/plus_sign.png')} />
+         <TouchableOpacity onPress={()=>handleAddProject()}>
          <Text style={{fontSize:20,color:'black',fontWeight:'bold',marginLeft:10}}>Project Setup</Text>
+         </TouchableOpacity>
       </View>
 
       <View style={{flex:1 ,marginTop:10,paddingVertical:50,
@@ -83,7 +94,9 @@ const DashboardScreen = ({route,navigation}) => {
       </View>
       <View style={{flex:1 ,marginTop:10, flexDirection:'row',alignItems:'center'}}>
         <Image style={{height:15,width:15,marginLeft:20,resizeMode:'contain'}} source={require('../assets/proj_req_ico.png')} />
+        <TouchableOpacity onPress={()=>navigation.navigate('ProjectAccess')}>
         <Text style={{fontSize:20,color:'black',fontWeight:'bold',marginLeft:10}}>Project Request</Text>
+          </TouchableOpacity>
      </View>
       {admin ? (
         <View style={{flex:1 ,marginTop:0,paddingVertical:50,
@@ -91,7 +104,9 @@ const DashboardScreen = ({route,navigation}) => {
           justifyContent:'space-evenly',
           backgroundColor:'#E8F0FF'}}>
            <Image style={{height:90,width:90,resizeMode:'contain'}} source={require('../assets/approve_req_access.png')} />
+           <TouchableOpacity onPress={()=>handleApproveSignupReqs()}>
            <Image style={{height:85,width:85, resizeMode:'contain'}} source={require('../assets/approve_signup_access.png')} />
+           </TouchableOpacity>
        </View>
       ) : null}
      <View style={{flex:1 ,marginTop:10, flexDirection:'row',alignItems:'center'}}>
