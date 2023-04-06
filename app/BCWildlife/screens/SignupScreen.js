@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-native';
 import { View, Text, 
-  Image, TextInput,ActivityIndicator,
+  Image, TextInput,
   TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Toast from 'react-native-simple-toast';
 import axios from '../network/axiosutil';
 import { register_url } from '../network/path';
+import LoadingOverlay from '../utility/LoadingOverlay';
 
 
 const SignupScreen = ({ navigation }) => {
@@ -20,6 +21,16 @@ const SignupScreen = ({ navigation }) => {
   const [confirm_password, setConfirmPassword] = useState('');
   let url = register_url;
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const formatPhoneNumber = (text) => {
+    let formattedText = text.replace(/[^0-9]/g, ''); // Remove all non-numeric characters
+    if (formattedText.length > 3 && formattedText.length < 7) {
+      formattedText = `${formattedText.slice(0, 3)}-${formattedText.slice(3)}`;
+    } else if (formattedText.length >= 7) {
+      formattedText = `${formattedText.slice(0, 3)}-${formattedText.slice(3, 6)}-${formattedText.slice(6, 10)}`;
+    }
+    setContactNumber(formattedText);
+  }
 
   function CustomAlertDialog(props) {
     return (
@@ -80,7 +91,7 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    if (!this.validateEmail(email)) {
+    if (!isValidEmail(email)) {
       showToast('Invalid Email');
       return;
     } 
@@ -144,12 +155,10 @@ const SignupScreen = ({ navigation }) => {
     Toast.show(message,Toast.SHORT);
   };
 
-  validateEmail = (email) => {
-    var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/; 
-
-//    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      return pattern.test(email);
-  };
+  const isValidEmail=(email) =>{
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
 
 
   const showAlert=(title, message)=> {
@@ -216,11 +225,12 @@ const SignupScreen = ({ navigation }) => {
         <TextInput
           style={{ backgroundColor: '#EFEFEF', padding: 10, borderRadius: 10, marginTop: 5 }}
           value={contact_number}
-          onChangeText={setContactNumber}
           placeholder="Enter your contact number"
           placeholderTextColor="#C7C7CD"
           returnKeyType="next"
-        
+          onChangeText={formatPhoneNumber}
+          keyboardType="phone-pad"
+          maxLength={12}
           blurOnSubmit={false}
           accessibilityLabel="Contact Number"
           testID="contactNumber"
@@ -281,7 +291,7 @@ const SignupScreen = ({ navigation }) => {
           testID="contactNumber"
         />
 
-      <ActivityIndicator animating={loading} size="large" color="#0000ff" />
+      
 
         <TouchableOpacity
           style={{ backgroundColor: '#234075', borderRadius: 10, marginTop: 20, padding: 10,
@@ -303,6 +313,7 @@ const SignupScreen = ({ navigation }) => {
           message="Thank you for signing up. Please wait for approval."
           onPress={handleOkPress}
         />
+        <LoadingOverlay loading={loading} />
       </View>
    </ScrollView>
   );

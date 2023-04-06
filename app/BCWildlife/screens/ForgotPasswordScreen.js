@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, Image, TextInput,Alert, TouchableOpacity } from 'react-native';
 import axios from '../network/axiosutil';
 import { forgotpass_url } from '../network/path';
+import LoadingOverlay from '../utility/LoadingOverlay';
 
 const ForgotPasswordScreen = ({ navigation }) => {
-  const [loadingVisible, setLoadingVisible] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const axiosInstance = axios.create();
 
@@ -15,33 +15,31 @@ const ForgotPasswordScreen = ({ navigation }) => {
   };
   
   const submitEmail = (email) => {
-    setLoadingVisible(true);
+    setLoading(true);
     if (!validateEmail(email)) {
       console.error('Invalid email');
-      setLoadingVisible(false);
+      setLoading(false);
       return;
     }
   
     const data = {
       email: email,
     };
-
-
   
     axiosInstance.post(forgotpass_url, data)
       .then((response) => {
-        setLoadingVisible(false);
+        setLoading(false);
         if (response.status === 200) {
           console.log('Success! Response code: ' + response.status);
           showAlert('Success',response.data.message);
         } else {
           showAlert('Error',response.data.message);
-          console.log('Error! Response code: ' + response.status);
-          
+          console.log('Error! Response code: ' + response.status); 
         }
       
       })
       .catch((error) => {
+        setLoading(false);
         console.error('Error submitting email');
         console.error(error);
       });
@@ -108,7 +106,7 @@ the email associated with your account.</Text>
           <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18,textAlign:'center' }}>SEND</Text>
         </TouchableOpacity>
       </View>
-    
+      <LoadingOverlay loading={loading} />
     </View>
   );
 };

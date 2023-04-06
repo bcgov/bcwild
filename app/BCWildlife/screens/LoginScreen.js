@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { View, Text, Image, TextInput,Alert, TouchableOpacity } from 'react-native';
 import axios from '../network/axiosutil';
 import { login_url } from '../network/path';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import LoadingOverlay from '../utility/LoadingOverlay';
+
+
 
 
 const LoginScreen = ({ navigation }) => {
+  const [loading, setLoading] = useState(false);
   axiosInstance = axios.create();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    navigateToDashboard();
+    }, [])
 
   function validateCredentials(username, password) {
     if (!username || !password) {
@@ -25,15 +34,28 @@ const LoginScreen = ({ navigation }) => {
           text: 'OK',
           onPress: () =>{
             console.log('OK Pressed')
-            navigateToDashboard();
+            if(title=='Success'){
+              navigateToDashboard();
+            }// else do nothing
+            
           } 
         }
       ]
     );
   }
 
-  const navigateToDashboard = () => {
-    
+  const navigateToDashboard = async () => {
+    const session = await EncryptedStorage.getItem("user_session");
+    console.log(session);
+    if(!session){
+      return;
+    }
+    const obj = JSON.parse(session);
+    if(obj.data.role=='admin'){
+      navigation.navigate('Dashboard',{admin:true});
+    }else{
+      navigation.navigate('Dashboard',{admin:false});
+    }
   }
 
   const handleLogin = () => {
@@ -46,23 +68,31 @@ const LoginScreen = ({ navigation }) => {
       username: username,
       password: password
     };
-    
-
-  
+    setLoading(true);
     axiosInstance.post(login_url, data)
-      .then((response) => {
-        
+      .then(async (response) => {
+      setLoading(false); 
         if (response.status === 200) {
           console.log('Success! Response code: ' + response.status);
+          try {
+            await EncryptedStorage.setItem(
+                "user_session",
+                JSON.stringify(response.data)
+            );
+            // Congrats! You've just stored your first value!
+        } catch (error) {
+            console.log(error);
+            // There was an error on the native side
+        }
           showAlert('Success',response.data.message);
         } else {
           showAlert('Error',response.data.message);
-          console.log('Error! Response code: ' + response.status);
-          
+          console.log('Error! Response code: ' + response.status); 
         }
       
       })
       .catch((error) => {
+        setLoading(false); 
         console.error('Error during login');
         console.error(error);
       });
@@ -143,6 +173,7 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
         </View>    
       </View>
+      <LoadingOverlay loading={loading} />
     </View>
   );
 };
