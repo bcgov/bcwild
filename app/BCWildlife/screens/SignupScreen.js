@@ -1,30 +1,77 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import { Modal } from 'react-native';
+import { View, Text, 
+  Image, TextInput,ActivityIndicator,
+  TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Toast from 'react-native-simple-toast';
-import axios from 'axios';
+import axios from '../network/axiosutil';
+import { register_url } from '../network/path';
 
 
 const SignupScreen = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [first_name, setFirstName] = useState('');
+  const [last_name, setLastName] = useState('');
+  const [contact_number, setContactNumber] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirm_password, setConfirmPassword] = useState('');
+  let url = register_url;
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleSignup = () => {
+  function CustomAlertDialog(props) {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={props.visible}
+        onRequestClose={props.onRequestClose}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Image
+              style={styles.image}
+              source={props.imageSource}
+            />
+            <View style={styles.textContainer}>
+              <Text style={styles.title}>
+                {props.title}
+              </Text>
+              <Text style={styles.message}>{props.message}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={props.onPress}
+            >
+              <Text style={styles.buttonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  function handleShowSuccess() {
+    setShowSuccess(true);
+  }
+
+  function handleOkPress() {
+    setShowSuccess(false);
+    navigation.navigate('Login')
+  }
+  const handleSignup = async() => {
     // Add logic here to handle signup button click
-    if(!firstName){
+    if(!first_name){
       showToast('Invalid First Name')
       return;
     }
-    if(!lastName){
+    if(!last_name){
       showToast('Invalid Last Name');
       return;
     }
-    if(!contactNumber){
+    if(!contact_number){
       showToast('Invalid Contact Number');
       return;
     }
@@ -42,17 +89,55 @@ const SignupScreen = ({ navigation }) => {
       showToast('Invalid password');
       return;
     }
-    if(!confirmPassword){
+    if(!confirm_password){
       showToast('Invalid Confirm password')
       return;
     }
 
-    if(password.trim() != confirmPassword.trim()){
+    if(password.trim() != confirm_password.trim()){
         showToast('Passwords do not match');
         return 
     }
-
+    makeSignupRequest();
   };
+
+
+  const makeSignupRequest=()=>{
+    setLoading(true);
+    const axiosInstance = axios.create();
+    // Add a request interceptor
+    
+  
+
+    const data = {
+      first_name:first_name,
+      last_name:last_name,
+      email:email,
+      username:username,
+      contact_number:contact_number,
+      password:password,
+      confirm_password:confirm_password
+    };
+  
+    axiosInstance.post(url, data)
+      .then(function (response) {
+        console.log(response.data);
+        setLoading(false);
+        if (response.status === 200) {
+          console.log('Success! Response code: ' + response.status);
+          handleShowSuccess();
+        } else {
+          showAlert('Error',response.data.message);
+          console.log('Error! Response code: ' + response.status);
+          
+        }
+      })
+      .catch(function (error) {
+        setLoading(false);
+        console.log('Error:', error);
+      });
+  
+  }
 
 
   const showToast = (message) => {
@@ -60,13 +145,30 @@ const SignupScreen = ({ navigation }) => {
   };
 
   validateEmail = (email) => {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      return re.test(email);
+    var pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/; 
+
+//    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return pattern.test(email);
   };
+
+
+  const showAlert=(title, message)=> {
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: 'OK',
+          onPress: () => console.log('OK Pressed')
+        }
+      ]
+    );
+  }
 
   return (
     <ScrollView> 
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center',backgroundColor: 'white' }}>
+  
       <Image source={require('../assets/bc_logo.png')}
        style={{ width: 200, height: 150 ,resizeMode:'contain',
                       alignItems :'center' 
@@ -87,7 +189,7 @@ const SignupScreen = ({ navigation }) => {
         <Text style={{ fontWeight: 'bold', fontSize: 16 }}>First Name</Text>
         <TextInput
           style={{ backgroundColor: '#EFEFEF', padding: 10, borderRadius: 10, marginTop: 5 }}
-          value={firstName}
+          value={first_name}
           onChangeText={setFirstName}
           placeholder="Enter your first name"
           placeholderTextColor="#C7C7CD"
@@ -100,7 +202,7 @@ const SignupScreen = ({ navigation }) => {
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginTop: 20 }}>Last Name</Text>
         <TextInput
           style={{ backgroundColor: '#EFEFEF', padding: 10, borderRadius: 10, marginTop: 5 }}
-          value={lastName}
+          value={last_name}
           onChangeText={setLastName}
           placeholder="Enter your last name"
           placeholderTextColor="#C7C7CD"
@@ -113,7 +215,7 @@ const SignupScreen = ({ navigation }) => {
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginTop: 20 }}>Contact Number</Text>
         <TextInput
           style={{ backgroundColor: '#EFEFEF', padding: 10, borderRadius: 10, marginTop: 5 }}
-          value={contactNumber}
+          value={contact_number}
           onChangeText={setContactNumber}
           placeholder="Enter your contact number"
           placeholderTextColor="#C7C7CD"
@@ -157,7 +259,7 @@ const SignupScreen = ({ navigation }) => {
           onChangeText={setPassword}
           placeholder="Enter your Password"
           placeholderTextColor="#C7C7CD"
-          
+          secureTextEntry={true}
           returnKeyType="next"
         
           blurOnSubmit={false}
@@ -167,17 +269,19 @@ const SignupScreen = ({ navigation }) => {
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginTop: 20 }}>confirm Password</Text>
         <TextInput
           style={{ backgroundColor: '#EFEFEF', padding: 10, borderRadius: 10, marginTop: 5 }}
-          value={confirmPassword}
+          value={confirm_password}
           onChangeText={setConfirmPassword}
           placeholder="Confirm Password"
           placeholderTextColor="#C7C7CD"
-        
+          secureTextEntry={true}
           returnKeyType="next"
         
           blurOnSubmit={false}
           accessibilityLabel="Contact Number"
           testID="contactNumber"
         />
+
+      <ActivityIndicator animating={loading} size="large" color="#0000ff" />
 
         <TouchableOpacity
           style={{ backgroundColor: '#234075', borderRadius: 10, marginTop: 20, padding: 10,
@@ -192,10 +296,68 @@ const SignupScreen = ({ navigation }) => {
         </TouchableOpacity>
 
       </View>
+        <CustomAlertDialog
+          visible={showSuccess}
+          imageSource={require('../assets/bc_elongated.png')}
+          title="Signup Success!"
+          message="Thank you for signing up. Please wait for approval."
+          onPress={handleOkPress}
+        />
       </View>
    </ScrollView>
   );
 };
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center'
+  },
+  image: {
+    width: 160,
+    height: 160,
+    marginBottom: 16
+  },
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: 16
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8
+  },
+  message: {
+    textAlign: 'center'
+  },
+  button: {
+    backgroundColor: '#234075',
+    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignSelf: 'center'
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center'
+  }
+});
 
 export default SignupScreen;
 

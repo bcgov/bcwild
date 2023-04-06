@@ -1,12 +1,70 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TextInput,Alert, TouchableOpacity } from 'react-native';
+import axios from '../network/axiosutil';
+import { forgotpass_url } from '../network/path';
 
 const ForgotPasswordScreen = ({ navigation }) => {
+  const [loadingVisible, setLoadingVisible] = useState(false);
+
   const [email, setEmail] = useState('');
+  const axiosInstance = axios.create();
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+  
+  const submitEmail = (email) => {
+    setLoadingVisible(true);
+    if (!validateEmail(email)) {
+      console.error('Invalid email');
+      setLoadingVisible(false);
+      return;
+    }
+  
+    const data = {
+      email: email,
+    };
+
+
+  
+    axiosInstance.post(forgotpass_url, data)
+      .then((response) => {
+        setLoadingVisible(false);
+        if (response.status === 200) {
+          console.log('Success! Response code: ' + response.status);
+          showAlert('Success',response.data.message);
+        } else {
+          showAlert('Error',response.data.message);
+          console.log('Error! Response code: ' + response.status);
+          
+        }
+      
+      })
+      .catch((error) => {
+        console.error('Error submitting email');
+        console.error(error);
+      });
+  };
+  
 
   const handleSend = () => {
+    submitEmail(email);
     // Add logic here to handle send button click
   };
+
+  const showAlert=(title, message)=> {
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: 'OK',
+          onPress: () => console.log('OK Pressed')
+        }
+      ]
+    );
+  }
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center',backgroundColor:'white' }}>
@@ -50,6 +108,7 @@ the email associated with your account.</Text>
           <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18,textAlign:'center' }}>SEND</Text>
         </TouchableOpacity>
       </View>
+    
     </View>
   );
 };

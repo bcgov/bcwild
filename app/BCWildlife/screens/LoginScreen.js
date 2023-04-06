@@ -1,13 +1,71 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TextInput,Alert, TouchableOpacity } from 'react-native';
+import axios from '../network/axiosutil';
+import { login_url } from '../network/path';
+
 
 const LoginScreen = ({ navigation }) => {
-
+  axiosInstance = axios.create();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  function validateCredentials(username, password) {
+    if (!username || !password) {
+      return false;
+    }
+    return true;
+  }
+
+  const showAlert=(title, message)=> {
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: 'OK',
+          onPress: () =>{
+            console.log('OK Pressed')
+            navigateToDashboard();
+          } 
+        }
+      ]
+    );
+  }
+
+  const navigateToDashboard = () => {
+    
+  }
+
   const handleLogin = () => {
-    // Add logic here to handle login button click
+    if(!validateCredentials(username, password)) {
+      showAlert('Error','Invalid credentials')
+      console.error('Invalid credentials');
+      return;
+    }
+    const data = {
+      username: username,
+      password: password
+    };
+    
+
+  
+    axiosInstance.post(login_url, data)
+      .then((response) => {
+        
+        if (response.status === 200) {
+          console.log('Success! Response code: ' + response.status);
+          showAlert('Success',response.data.message);
+        } else {
+          showAlert('Error',response.data.message);
+          console.log('Error! Response code: ' + response.status);
+          
+        }
+      
+      })
+      .catch((error) => {
+        console.error('Error during login');
+        console.error(error);
+      });
   };
 
   return (
