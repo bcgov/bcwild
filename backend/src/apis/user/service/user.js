@@ -1,5 +1,5 @@
 const { registrationValidation, loginValidation } = require("../validation/user")
-const { dataExist, customInsert,customFindAll } = require("../../../helpers/commonSequelizeQueries")
+const { dataExist, customInsert, customFindAll } = require("../../../helpers/commonSequelizeQueries")
 const { registerMail } = require("../../../helpers/send-email")
 const { sequelize } = require("../../../config/database");
 const { customErrors } = require("../../../errorHandler/error");
@@ -11,6 +11,7 @@ const { signToken } = require("../../../helpers/auth");
 const { generateHash, validPassword } = require("../../../helpers/passwordHash");
 const { Op } = require('sequelize')
 const jwtDecode = require("jwt-decode");
+const { customUpdate } = require("../../sync/sequelizeQuery/sync");
 const registration = async (req) => {
     let transaction;
     try {
@@ -24,10 +25,10 @@ const registration = async (req) => {
         const isExistData = await dataExist(User, { [Op.or]: [{ email: email }, { username: username }] }, null)
 
 
-        if (isExistData){
-            let message = isExistData.username==username ?"This username is already registered" : "This email is already registered"
+        if (isExistData) {
+            let message = isExistData.username == username ? "This username is already registered" : "This email is already registered"
             throw new AlreadyExistError(message)
-        } 
+        }
 
 
         const hashPassword = await generateHash(password)
@@ -56,7 +57,7 @@ const registration = async (req) => {
 const adminData = async () => {
     const signUprequest = await customFindAll(User, { status: "pending" });
     const projectRequest = await customFindAll(ProjectAccess, { status: "pending" });
-    
+
     return { signUprequest: signUprequest?.count, projectRequest: projectRequest?.count }
 }
 
@@ -81,7 +82,7 @@ const login = async (req) => {
     const validCredentials = await validPassword(password, getLoginData?.password)
 
     if (validCredentials) {
-        const tokens = signToken({ id: getLoginData.id, email: getLoginData.email, username: getLoginData.username,role:getLoginData.role })
+        const tokens = signToken({ id: getLoginData.id, email: getLoginData.email, username: getLoginData.username, role: getLoginData.role })
         getLoginData = getLoginData.dataValues;
         delete getLoginData["password"];
         getLoginData.tokens = tokens
@@ -90,8 +91,8 @@ const login = async (req) => {
             const getRequestData = await adminData();
             getLoginData.signUprequests = getRequestData?.signUprequest || 0
             getLoginData.projectRequests = getRequestData?.projectRequest || 0
-        }else{
-            const projectList = await customFindAll(ProjectAccess,{username:getLoginData.username,status:"approved"},null,null,null,["id","project_id"]);
+        } else {
+            const projectList = await customFindAll(ProjectAccess, { username: getLoginData.username, status: "approved" }, null, null, null, ["id", "project_id"]);
             getLoginData.projects = projectList?.rows
         }
 
@@ -113,8 +114,28 @@ const generateAccessToken = async (req) => {
     return tokens;
 }
 
+const updateProfilePhoto = async (req) => {
+
+    if (!req.file) throw new BadRequestError("Image is required")
+    const mimeType = [
+        "image/png",
+        "image/jpg",
+        "image/jpeg",
+    ];
+
+    if (!mimeType.includes(req.file.mimetype)) {
+        throw new BadRequestError("Allowed only .png, .jpg and .jpeg");
+    }
+    const base64 = req.file.buffer.toString("base64");
+
+    const updateData = await customUpdate(User, { username: req.decoded.username }, { profile_photo: base64 })
+
+    return updateData
+}
+
 module.exports = {
     registration,
     login,
-    generateAccessToken
+    generateAccessToken,
+    updateProfilePhoto
 }

@@ -50,6 +50,10 @@ const User = db.sequelize.define(
             type: Sequelize.ENUM("pending", "approved", "rejected"),
             allowNull: false,
             defaultValue: "pending"
+        },
+        profile_photo:{
+            type:Sequelize.TEXT,
+            defaultValue:null
         }
 
     },
@@ -58,5 +62,5 @@ const User = db.sequelize.define(
         underscored: true
     }
 );
-
+//User.sync({alter:true}).then()
 module.exports = User;
