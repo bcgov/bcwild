@@ -2,9 +2,9 @@ const router = require('express').Router()
 const adminController = require("../apis/admin/api/admin")
 const { successResponse, errorResponse } = require('../helpers/apiResponse')
 const {isAuthorized} = require("../helpers/auth")
-router.post('/login',login)
+//router.post('/login',login)
 router.get('/signupRequests',isAuthorized,showSignupRequests)
-router.post('/ChangeSignupAccessStatus',isAuthorized,signupRequestsHandler)
+router.post('/changeSignupAccessStatus',isAuthorized,signupRequestsHandler)
 
 
 async function login(req, res) {
@@ -34,7 +34,6 @@ async function signupRequestsHandler(req, res) {
 
         successResponse("Signup access status changed successfully", result, res);
     } catch (error) {
-        console.log(error)
         errorResponse(error, res);
     }
 }

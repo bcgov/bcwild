@@ -11,8 +11,13 @@ const generateAccessToken = async(req)=>{
     return await services.generateAccessToken(req)
 }
 
+const updateProfilePhoto = async(req)=>{
+    return await services.updateProfilePhoto(req)
+}
+
 module.exports = {
     registration,
     login,
-    generateAccessToken
+    generateAccessToken,
+    updateProfilePhoto
 }

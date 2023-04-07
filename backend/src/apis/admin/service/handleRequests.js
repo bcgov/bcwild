@@ -1,6 +1,6 @@
 const { UnauthorizedError, BadRequestError } = require("../../../errorHandler/customErrorHandlers");
 const { customErrors } = require("../../../errorHandler/error");
-const { customFindAll, customUpdate } = require("../../../helpers/commonSequelizeQueries");
+const { customFindAll, customUpdate, customDelete } = require("../../../helpers/commonSequelizeQueries");
 const { signupApprovalMail } = require("../../../helpers/send-email");
 const User = require("../../user/model/user");
 const { signupRequestValidation } = require("../validation/admin");
@@ -16,8 +16,15 @@ const signupRequestsHandler = async(req)=>{
         if(error) throw new BadRequestError(error.message)
 
         transaction = await sequelize.transaction()
-        const requestData = await customUpdate(User,{id:id},{status:status})
-        const {email,first_name,last_name} = requestData
+        let userData;
+        if(status=="rejected"){
+            // Deleting user data if signupRequest rejected so user can register with same email id and usernamae
+            userData = await customDelete(User,{id:id},transaction)
+        }else{
+            userData = await customUpdate(User,{id:id},{status:status},transaction)
+        }
+
+        const {email,first_name,last_name} = userData
         //sending mail
         await signupApprovalMail(email,first_name+" "+last_name,status)
         await transaction.commit()

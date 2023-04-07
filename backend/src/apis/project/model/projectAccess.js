@@ -11,14 +11,14 @@ const ProjectAccess = db.sequelize.define(
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
         },
         username: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(20),
             allowNull: false
         },
         project_id: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(20),
             allowNull: false
         },
 
@@ -31,7 +31,7 @@ const ProjectAccess = db.sequelize.define(
             defaultValue:"pending"
         }
     },
-    { timestamps: true }
+    { timestamps: true,underscored: true }
 );
 
 ProjectAccess.belongsTo(User,{
@@ -46,5 +46,5 @@ ProjectAccess.belongsTo(Project,{
     as:"project"
 })
 
-ProjectAccess.sync().then()
+
 module.exports = ProjectAccess;
