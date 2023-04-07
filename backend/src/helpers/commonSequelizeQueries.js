@@ -1,7 +1,7 @@
 const { NotFoundError } = require("../errorHandler/customErrorHandlers");
 
-const dataExist = async (model, where, include,attributes) => {
-    const item = await model.findOne({ where: where, inlude: include,attributes:attributes });
+const dataExist = async (model, where, include, attributes) => {
+    const item = await model.findOne({ where: where, inlude: include, attributes: attributes });
     return item;
 };
 
@@ -19,17 +19,30 @@ const customFindAll = async (model, where, include, page, page_size, attributes)
 };
 
 const customUpdate = async (model, where, updateItem, transaction) => {
-    const updatedItem = await model.findOne({where:where});
+    const updatedItem = await model.findOne({ where: where });
     if (!updatedItem) throw new NotFoundError("Record not found");
     // Found an item, update it
-    await model.update(updateItem, {where:where}, transaction);
-    return await model.findOne({where:where});
+    await model.update(updateItem, { where: where }, transaction);
+    return await model.findOne({ where: where });
 
 };
+
+const customDelete = async (model, where, transaction) => {
+
+    const updatedItem = await model.findOne({ where: where });
+
+    if (!updatedItem) throw new NotFoundError("Record not found");
+    // Found an item, update it
+    await model.destroy({ where: where, transaction: transaction });
+
+    return updatedItem
+
+}
 
 module.exports = {
     dataExist,
     customInsert,
     customFindAll,
-    customUpdate
+    customUpdate,
+    customDelete
 }

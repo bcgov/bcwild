@@ -34,7 +34,6 @@ async function signupRequestsHandler(req, res) {
 
         successResponse("Signup access status changed successfully", result, res);
     } catch (error) {
-        console.log(error)
         errorResponse(error, res);
     }
 }
