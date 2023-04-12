@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TextInput,Alert, TouchableOpacity } from 'react-native';
-import axios from '../network/axiosutil';
+import axiosUtility from '../network/AxiosUtility';
 import { forgotpass_url } from '../network/path';
 import LoadingOverlay from '../utility/LoadingOverlay';
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const axiosInstance = axios.create();
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
+
+
   
-  const submitEmail = (email) => {
+  const submitEmail = async (email) => {
     setLoading(true);
     if (!validateEmail(email)) {
       console.error('Invalid email');
@@ -25,26 +26,34 @@ const ForgotPasswordScreen = ({ navigation }) => {
     const data = {
       email: email,
     };
-  
-    axiosInstance.post(forgotpass_url, data)
-      .then((response) => {
-        setLoading(false);
-        if (response.status === 200) {
-          console.log('Success! Response code: ' + response.status);
-          showAlert('Success',response.data.message);
-        } else {
-          showAlert('Error',response.data.message);
-          console.log('Error! Response code: ' + response.status); 
-        }
-      
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.error('Error submitting email');
-        console.error(error);
-      });
-  };
-  
+
+    axiosUtility.post(forgotpass_url, data)
+    .then((response) => {
+      setLoading(false);
+      console.log('Response:', response);
+      if(response.type=='success'){
+        console.log('Success');
+        showAlert('Success',response.message);
+        setEmail('');
+      }else{
+        showAlert('Error',response.message);
+      }
+    })
+    .catch((error) => {
+      setLoading(false);
+      if (error.response) {
+        console.log('Response error:', error.response.data);
+        showAlert('Error',error.response.data.message);
+      } else if (error.request) {
+        console.log('Request error:', error.request);
+        showAlert('Error',error.response.data.message);
+      } else {
+        console.log('Error message:', error.message);
+        showAlert('Error',error.response.data.message);
+      }
+    });
+
+  }
 
   const handleSend = () => {
     submitEmail(email);

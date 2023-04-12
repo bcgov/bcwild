@@ -1,23 +1,25 @@
 import React,{useEffect} from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text,Alert, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import LoadingOverlay from '../utility/LoadingOverlay';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { addproject_url } from '../network/path';
-import createAxiosInstance from '../network/axiosauth';
+import axiosUtility from '../network/AxiosUtility';
 
 const AddProjectScreen = () => {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
-  const [date,setDate] = useState('ddMMMyyyy');
+  const [date,setDate] = useState('');
   const [projectId,setProjectId] = useState('');
   const [studyArea,setStudyArea] = useState('');
+  const [surveyId,setSurveyId] = useState('');
 
-  useEffect(async () => {
+  useEffect( () => {
       handleLocalValue();
     }, [])
 
-    const handleLocalValue = async () => {
+    const handleLocalValue =  () => {
+      (async () => {
       const token = await EncryptedStorage.getItem("user_session")
       .then((token) => {
         console.log(token) 
@@ -26,12 +28,10 @@ const AddProjectScreen = () => {
         let dataitem = tokendata.data.username;
         console.log(dataitem);
         setUsername(dataitem);
-        //accTokenValue = accToken;
-        //const axiosInstance = createAxiosInstance(accToken);
-        //getPendingSignupAccessRequests(axiosInstance);
       }).catch((error) => {
         console.log(error)
       });
+    })();
 
       const today = new Date();
 
@@ -52,10 +52,7 @@ const AddProjectScreen = () => {
           {
             text: 'Ok',
             onPress: () =>{
-              
               console.log('OK Pressed')
-              
-    
             } 
           }
         ]
@@ -65,56 +62,92 @@ const AddProjectScreen = () => {
     const clearAllValues = () => {
       setProjectId('');
       setStudyArea('');
+      setSurveyId('');
     }
 
+    const handleAddProject = () => {
+      if(projectId=='' || studyArea=='' || surveyId==''){
+        showAlertOnly('Error','Please fill all the fields');
+      }else{
+        setLoading(true);
+        addProjectNetworkCall(username, projectId, studyArea, surveyId, date);
+        //showAlertOnly('Success','Project added successfully');
+        //clearAllValues();
+      }
+    }
 
-    const addProject = async () => {
-
+    async function addProjectNetworkCall(username, projectId, studyArea, surveyId, creationDate) {
+      if (!username || username.trim() === '') {
+        console.error('Username cannot be null or empty.');
+        return;
+      }
+    
+      if (!projectId || projectId.trim() === '') {
+        console.error('Project ID cannot be null or empty.');
+        return;
+      }
+    
+      if (!studyArea || studyArea.trim() === '') {
+        console.error('Study area cannot be null or empty.');
+        return;
+      }
+    
+      if (!surveyId || surveyId.trim() === '') {
+        console.error('Survey ID cannot be null or empty.');
+        return;
+      }
+    
+      if (!creationDate || creationDate.trim() === '') {
+        console.error('Creation date cannot be null or empty.');
+        return;
+      }
+    
+      // Convert creationDate to required format (DD/MM/YYYY)
+      const dateObj = new Date(creationDate);
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+      const year = dateObj.getFullYear().toString();
+      const formattedDate = `${day}/${month}/${year}`;
+    
       const data = {
-        "project_id": projectId,
-        "study_area": studyArea,
-        "creation_date": date,
-        "username": username,
-        "survey_id": "1"
-      }
+        username,
+        project_id: projectId,
+        study_area: studyArea,
+        survey_id: surveyId,
+        creation_date: formattedDate,
+      };
+    
+      
+      try {
+        const USER_TOKEN = await EncryptedStorage.getItem('accessToken')
+      const AuthStr = 'Bearer '.concat(USER_TOKEN); 
 
-      const token = await EncryptedStorage.getItem("user_session")
-    .then((token) => {
-      console.log(token) 
-      tokendata = JSON.parse(token);
-      console.log(tokendata);
-      let dataitem = tokendata.data.tokens;
-      let accToken = dataitem.accessToken;
-      console.log(accToken);
-      accTokenValue = accToken;
-      const axiosInstance = createAxiosInstance(accToken);
-      try{
-        axiosInstance.post(addproject_url, data)
-        .then((response) => { 
-          if(response.status == 200){
-            setLoading(false);
-            showAlertOnly('Success','Request processed successfully');
-            clearAllValues();
-          }else{
-            setLoading(false);
-            console.log( response.data)
-            showAlertOnly('Error',response.data.message);
+        axiosUtility.post(addproject_url, data,
+          { headers: { Authorization: AuthStr } })
+        .then(response => {
+          setLoading(false);
+          console.log('Response:', response.data);
+          showAlertOnly('Success','Project added successfully');
+          clearAllValues();
+        }).catch((error) => {
+          setLoading(false);
+          if (error.response) {
+            console.log('Response error:', error.response.data);
+            showAlertOnly('Error',error.response.data.message);
+          } else if (error.request) {
+            console.log('Request error:', error.request);
+            showAlertOnly('Error','Request error');
+          } else {
+            console.log('Error', error.message);
+            showAlertOnly('Error','Error');
           }
-          }).catch((error) => {
-            setLoading(false);
-            console.log( error.data)
-            showAlertOnly('Error',error.data.message);
-          });
-      }catch(error){
+        });
+      } catch (error) {
         setLoading(false);
-        console.log(error);
+        console.error(error);
       }
-    }).catch((error) => {
-      console.log(error)
-    });
-
     }
-  
+    
 
   return (
     <View style={styles.container}>
@@ -125,18 +158,27 @@ const AddProjectScreen = () => {
       <View style={styles.formContainer}>
         <TextInput style={styles.input} editable={false} 
          value={username} />
-        <TextInput style={styles.input} 
-        value={projectId} placeholder="Project ID" 
+        <TextInput style={styles.input} placeholder="Project ID" 
+        
         onChange={setProjectId}/>
+
         <TextInput style={styles.input} placeholder="Study Area" 
-        value={studyArea}
+        
         onChange={setStudyArea}/>
+
+        <TextInput style={styles.input} placeholder="Survey ID" 
+        
+        onChange={setSurveyId}/>
+
         <TextInput style={styles.input} placeholder="Creation Date"
-        value={date}
+          value={date}
         onChange={setDate}
          />
+             
+
+         
         <TouchableOpacity style={styles.addButton}
-        onPress={()=>addProject()}>
+        onPress={()=>handleAddProject()}>
           <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
       </View>

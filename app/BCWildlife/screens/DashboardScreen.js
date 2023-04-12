@@ -9,19 +9,6 @@ const DashboardScreen = ({route,navigation}) => {
   const { admin } = route.params;
   
 
-  // useEffect(() => {
-  //   const backAction = () => {
-  //     BackHandler.exitApp();
-  //     return true;
-  //   };
-
-  //   const backHandler = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     backAction
-  //   );
-  //   return () => backHandler.remove();
-  // }, []);
-
   
   const handleApproveSignupReqs = () => {
     navigation.navigate('ApproveSignupAccess');

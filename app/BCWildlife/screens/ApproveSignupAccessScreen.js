@@ -1,17 +1,18 @@
 import React,{useEffect,useState} from 'react';
 import { View, Text, Image, Alert,TouchableOpacity, StyleSheet } from 'react-native';
 import { getpendinguser_url } from '../network/path';
-import axios from '../network/axiosauth';
-import createAxiosInstance from '../network/axiosauth';
-import EncryptedStorage from 'react-native-encrypted-storage';
+import axiosUtility from '../network/AxiosUtility';
 import LoadingOverlay from '../utility/LoadingOverlay';
 import { ScrollView } from 'react-native-gesture-handler';
 import { statuschange_url } from '../network/path';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const ApproveSignupAccessScreen = (navigation) => {
+
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  let accTokenValue=''
+
 
   const onhandleAccept = (item) => {
     console.log(item);
@@ -29,21 +30,12 @@ const ApproveSignupAccessScreen = (navigation) => {
         {
           text: 'Yes',
           onPress: () =>{
-            setLoading(true);
             console.log('OK Pressed')
             if(title=='Accept'){
               // approve network request
-              let data = JSON.stringify({
-                "id": item,
-                "status": "approved"
-              });
-              statusChangeForUser( data);
+              updateStatus(item, 'approved');
             }else {
-              let data = JSON.stringify({
-                "id": item,
-                "status": "rejected"
-              });
-              statusChangeForUser(data);
+              updateStatus(item, 'rejected');
               // reject network request
             }
             
@@ -60,6 +52,20 @@ const ApproveSignupAccessScreen = (navigation) => {
     );
   }
 
+  const navigateToDashboard = async () => {
+    const session = await EncryptedStorage.getItem("user_session");
+    console.log(session);
+    if(!session){
+      return;
+    }
+    const obj = JSON.parse(session);
+    if(obj.data.role=='admin'){
+      navigation.navigate('Dashboard',{admin:true});
+    }else{
+      navigation.navigate('Dashboard',{admin:false});
+    }
+  }
+
   const showAlertOnly=(title, message)=> {
     Alert.alert(
       title,
@@ -68,9 +74,10 @@ const ApproveSignupAccessScreen = (navigation) => {
         {
           text: 'Ok',
           onPress: () =>{
-            
-            console.log('OK Pressed')
-            
+            if(title=='Info'){
+              navigateToDashboard();
+            }// else do nothing
+            console.log('OK Pressed')  
   
           } 
         }
@@ -83,105 +90,81 @@ const ApproveSignupAccessScreen = (navigation) => {
     navigation.goBack();
   };
   useEffect(() => {
-      getTokenClient();
+    getPendingSignupAccessRequests();
     }, [])
-  let tokendata;
-  const getTokenClient = async () => {
-    setLoading(true);
-    const token = await EncryptedStorage.getItem("user_session")
-      .then((token) => {
-        console.log(token) 
-        tokendata = JSON.parse(token);
-        console.log(tokendata);
-        let dataitem = tokendata.data.tokens;
-        let accToken = dataitem.accessToken;
-        console.log(accToken);
-        accTokenValue = accToken;
-        const axiosInstance = createAxiosInstance(accToken);
-        getPendingSignupAccessRequests(axiosInstance);
-      }).catch((error) => {
-        console.log(error)
-      });
+
+
+    async function updateStatus(id, status) {
+      const data = {
+        id,
+        status,
+      };
+      setLoading(true);
     
-  }
-
-  const statusChangeForUser = async (data) => {
-    const token = await EncryptedStorage.getItem("user_session")
-    .then((token) => {
-      console.log(token) 
-      tokendata = JSON.parse(token);
-      console.log(tokendata);
-      let dataitem = tokendata.data.tokens;
-      let accToken = dataitem.accessToken;
-      console.log(accToken);
-      accTokenValue = accToken;
-      const axiosInstance = createAxiosInstance(accToken);
-      try{
-        axiosInstance.post(statuschange_url, data)
-        .then((response) => { 
-          if(response.status == 200){
-            setLoading(false);
-            showAlertOnly('Success','Request processed successfully');
-            getTokenClient();
-          }else{
-            setLoading(false);
-            console.log( response.data)
-            showAlertOnly('Error',response.data.message);
-
+      const USER_TOKEN = await EncryptedStorage.getItem('accessToken')
+      const AuthStr = 'Bearer '.concat(USER_TOKEN); 
+      try {
+        axiosUtility.post(statuschange_url, data,
+          { headers: { Authorization: AuthStr } })
+        .then(response => {
+          getPendingSignupAccessRequests();
+        }).catch((error) => {
+          setLoading(false);
+          if (error.response) {
+            console.log('Response error:', error.response.data);
+            showAlertOnly('Error',error.response.data.message);
+          } else if (error.request) {
+            console.log('Request error:', error.request);
+            showAlertOnly('Error','Request error');
+          } else {
+            console.log('Error', error.message);
+            showAlertOnly('Error','Error');
           }
-          }).catch((error) => {
-            setLoading(false);
-            console.log( response.data)
-            showAlertOnly('Error',response.data.message);
-          });
-      }catch(error){
-        setLoading(false);
-        console.log(error);
-      }
-    }).catch((error) => {
-      console.log(error)
-    });
-
-
-
-  
-        
-        
-  }
-
-  const getPendingSignupAccessRequests = (axiosInstance) => {
-    try{
-      axiosInstance.get(getpendinguser_url)
-      .then((response) => { 
-        if(response.status == 200){
-        datavar = JSON.stringify(response);
-        console.log(datavar);
-        firstChild = JSON.parse(datavar);
-        secondChild = firstChild.data;
-        console.log(secondChild);
-        thirdChild = secondChild.data;  
-        console.log(thirdChild);
-        fourthChild = thirdChild.rows;
-        console.log(fourthChild);
-        fourthChild.forEach(element => {
-          console.log(element);
         });
-        listItems = fourthChild;
-        setItems(listItems);
+      } catch (error) {
         setLoading(false);
-      }else{
-        setLoading(false);
-        console.log("Error");
+        console.error(error);
       }
-      }).catch((error) => {
-        setLoading(false);
-        console.log(error);
-      });
-    }catch(error){
-      setLoading(false);
-      console.log(error);
-    }
+    }  
 
+  const getPendingSignupAccessRequests = async () => {
+    setLoading(true);
+
+    const USER_TOKEN = await EncryptedStorage.getItem('accessToken')
+    const AuthStr = 'Bearer '.concat(USER_TOKEN); 
+    try {
+        axiosUtility.get(getpendinguser_url, 
+          { headers: { Authorization: AuthStr } })
+        .then(response => {
+          console.log(response);
+          var respStr = JSON.stringify(response);
+          console.log(respStr);
+          var respObj = JSON.parse(respStr);
+          var datavar = respObj.data;
+          var listItems = datavar.rows;
+          setItems(listItems);
+          setLoading(false);
+          if (listItems.length == 0) {
+            showAlertOnly('Info','No pending requests');
+          }
+        })
+        .catch((error) => {
+          setLoading(false);
+          if (error.response) {
+            console.log('Response error:', error.response.data);
+            showAlertOnly('Error',error.response.data.message);
+          } else if (error.request) {
+            console.log('Request error:', error.request);
+            showAlertOnly('Error',error.response.data.message);
+          } else {
+            console.log('Error message:', error.message);
+            showAlertOnly('Error',error.response.data.message);
+          }
+        });
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+    }
   }
 
   if (items.length === 0) {
@@ -205,7 +188,7 @@ const ApproveSignupAccessScreen = (navigation) => {
       </View>
       <View style={styles.cardList}>
         <ScrollView>
-        {listItems.map((item, index) => (
+        {items.map((item, index) => (
           <View key={index} style={styles.card}>
             <Text style={styles.cardName}>{item.first_name +" "+ item.last_name}  </Text>
             <Text style={styles.cardValue}>{item.email}</Text>
@@ -225,6 +208,7 @@ const ApproveSignupAccessScreen = (navigation) => {
         ))}
         </ScrollView>
       </View>
+      <LoadingOverlay loading={loading} />
     </View>
   );
 };

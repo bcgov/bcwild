@@ -5,7 +5,7 @@ import { View, Text,
   TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Toast from 'react-native-simple-toast';
-import axios from '../network/axiosutil';
+import axiosUtility from '../network/AxiosUtility';
 import { register_url } from '../network/path';
 import LoadingOverlay from '../utility/LoadingOverlay';
 
@@ -113,11 +113,9 @@ const SignupScreen = ({ navigation }) => {
   };
 
 
-  const makeSignupRequest=()=>{
+  const makeSignupRequest=async ()=>{
+
     setLoading(true);
-    const axiosInstance = axios.create();
-    // Add a request interceptor
-    
   
 
     const data = {
@@ -129,25 +127,34 @@ const SignupScreen = ({ navigation }) => {
       password:password,
       confirm_password:confirm_password
     };
-  
-    axiosInstance.post(url, data)
-      .then(function (response) {
-        console.log(response.data);
-        setLoading(false);
-        if (response.status === 200) {
-          console.log('Success! Response code: ' + response.status);
-          handleShowSuccess();
-        } else {
-          showAlert('Error',response.data.message);
-          console.log('Error! Response code: ' + response.status);
-          
-        }
-      })
-      .catch(function (error) {
-        setLoading(false);
-        console.log('Error:', error);
-      });
-  
+
+    
+    axiosUtility.post(register_url, data)
+    .then((response) => {
+      setLoading(false);
+      console.log('Response:', response);
+      if(response.type=='success'){
+        console.log('Success');
+        handleShowSuccess();
+      
+      }else{
+        showAlert('Error',response.message);
+      }
+    })
+    .catch((error) => {
+      setLoading(false);
+      if (error.response) {
+        console.log('Response error:', error.response.data);
+        showAlert('Error',error.response.data.message);
+      } else if (error.request) {
+        console.log('Request error:', error.request);
+        showAlert('Error',error.response.data.message);
+      } else {
+        console.log('Error message:', error.message);
+        showAlert('Error',error.response.data.message);
+      }
+    });
+
   }
 
 
@@ -276,7 +283,7 @@ const SignupScreen = ({ navigation }) => {
           accessibilityLabel="Contact Number"
           testID="contactNumber"
         />
-        <Text style={{ fontWeight: 'bold', fontSize: 16, marginTop: 20 }}>confirm Password</Text>
+        <Text style={{ fontWeight: 'bold', fontSize: 16, marginTop: 20 }}>Confirm Password</Text>
         <TextInput
           style={{ backgroundColor: '#EFEFEF', padding: 10, borderRadius: 10, marginTop: 5 }}
           value={confirm_password}

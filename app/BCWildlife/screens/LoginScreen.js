@@ -1,18 +1,16 @@
 import React, { useState ,useEffect} from 'react';
 import { View, Text, Image, TextInput,Alert, TouchableOpacity } from 'react-native';
-import axios from '../network/axiosutil';
 import { login_url } from '../network/path';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import LoadingOverlay from '../utility/LoadingOverlay';
-
-
+import axiosInstance from '../network/AxiosUtility';
 
 
 const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
-  axiosInstance = axios.create();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  var axiosUtility = new axiosInstance.getInstanceWithoutToken();
 
   useEffect(() => {
     navigateToDashboard();
@@ -58,7 +56,7 @@ const LoginScreen = ({ navigation }) => {
     }
   }
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     if(!validateCredentials(username, password)) {
       showAlert('Error','Invalid credentials')
       console.error('Invalid credentials');
@@ -69,34 +67,49 @@ const LoginScreen = ({ navigation }) => {
       password: password
     };
     setLoading(true);
-    axiosInstance.post(login_url, data)
-      .then(async (response) => {
-      setLoading(false); 
-        if (response.status === 200) {
-          console.log('Success! Response code: ' + response.status);
-          try {
-            await EncryptedStorage.setItem(
-                "user_session",
-                JSON.stringify(response.data)
-            );
-            // Congrats! You've just stored your first value!
-        } catch (error) {
-            console.log(error);
-            // There was an error on the native side
-        }
-          showAlert('Success',response.data.message);
-        } else {
-          showAlert('Error',response.data.message);
-          console.log('Error! Response code: ' + response.status); 
-        }
+    axiosUtility.post(login_url, data)
+    .then((response) => {
+      setLoading(false);
+      console.log('Response:', response.data);
+      if(response.data.type=='success'){
+        EncryptedStorage.setItem("user_session", JSON.stringify(response.data));
+        var respStr = JSON.stringify(response.data);
+        console.log('Response string:', respStr);
+        var tokens = JSON.parse(respStr);
+        
+        var refreshToken = tokens.data.tokens.refreshToken;
+        EncryptedStorage.setItem("refreshToken", refreshToken);
+        var accessToken = tokens.data.tokens.accessToken;
+        EncryptedStorage.setItem("accessToken", accessToken);
+        console.log('Response tokens:', accessToken);
+        //axiosInstance.setToken(response.data.data.tokens);
+        setUsername('');
+        setPassword('');
+        navigateToDashboard();
+      }else{
+        showAlert('Error',response.data.message);
+      }
+    })
+    .catch((error) => {
+      setLoading(false);
+      if (error.response) {
+        console.log('Response error:', error.response.data);
+        showAlert('Error',error.response.data.message);
+      } else if (error.request) {
+        console.log('Request error:', error.request);
+        showAlert('Error',error.response.data.message);
+      } else {
+        console.log('Error message:', error.message);
+        showAlert('Error',error.response.data.message);
+      }
       
-      })
-      .catch((error) => {
-        setLoading(false); 
-        console.error('Error during login');
-        console.error(error);
-      });
-  };
+    });
+
+  }
+    
+
+
+
 
   return (
   
