@@ -13,7 +13,7 @@ var transporter = nodemailer.createTransport({
     tls: { rejectUnauthorized: false },
 });
 
-const registerMail = (email,name) => {
+const registerMail = (email,name,username) => {
     let mailoptionsuccess = {
         from: {
             name: "WildLife",
@@ -22,7 +22,7 @@ const registerMail = (email,name) => {
         to: email,
         subject: "Registration successful",
         html: `<p>Hi ${name},</p>
-        <p>You have been successfully registered on WildLife</p>`
+        <p>You have been successfully registered on WildLife. Please use username: <b>${username}</b> for login.</p>`
     };
 
     const mailsend = transporter
@@ -96,8 +96,42 @@ const resetMail = (email,name,password) => {
     return mailsend;
 };
 
+//data export
+const dataExportMail = (email,name,file) => {
+    let mailoptionsuccess = {
+        from: {
+            name: "WildLife",
+            address: process.env.EMAIL
+        },
+        to: email,
+        subject: "Data export in CSV",
+        html: `<p>Hi ${name},</p>
+        <p>
+        Thank you for the request,Please find the attached CSV file.
+        </p> `,
+        attachments:[{
+            filename:"dataExport.csv",
+            content:file
+        }]      
+    };
+
+    const mailsend = transporter
+        .sendMail(mailoptionsuccess)
+        .then((info) => {
+            return info;
+        })
+        .catch((err) => {
+            throw new InternalServerError(
+                "Email cannot send, please try again in some time"
+            );
+        });
+
+    return mailsend;
+};
+
 module.exports = {
     registerMail,
     signupApprovalMail,
-    resetMail
+    resetMail,
+    dataExportMail
 }

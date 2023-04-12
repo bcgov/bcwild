@@ -2,12 +2,12 @@ const router = require('express').Router()
 const controller = require("../apis/project/api/project")
 const { successResponse, errorResponse } = require('../helpers/apiResponse')
 const {isAuthorized} = require("../helpers/auth")
-router.post('/user/project/add',isAuthorized,add)
-router.get('/user/project/list',isAuthorized,list)
+router.post('/user/project',isAuthorized,add)
+router.get('/user/project',isAuthorized,list)
 router.post('/user/project/accessRequest',isAuthorized,accessRequest)
 
 router.get('/admin/project/requestList',isAuthorized,requestList)
-router.post('/admin/project/ChangeProjectRequestStatus',isAuthorized,projectRequestStatusHandler)
+router.post('/admin/project/changeProjectRequestStatus',isAuthorized,projectRequestStatusHandler)
 
 async function add(req, res) {
     try {

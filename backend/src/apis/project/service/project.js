@@ -9,7 +9,7 @@ const { BadRequestError, UnauthorizedError, AlreadyExistError } = require("../..
 const addProject = async (req) => {
     let transaction;
     try {
-        const { username, project_id, study_area, survey_id, creation_date } = req.body;
+        let { username, project_id, study_area, survey_id, creation_date } = req.body;
 
         //validation
         const { error } = projectAddValidation(req.body)
@@ -66,7 +66,6 @@ const projectRequest = async (req) => {
 
 //for admin
 const projectRequestList = async (req) => {
-    console.log(req.decoded,'------')
     const { page, page_size } = req.query;
     if(req.decoded.role!='admin') throw new UnauthorizedError("Not Authorized to access this resource!")
     const projectData = await customFindAll(ProjectAccess, { status: "pending" }, null, page, page_size)

@@ -11,16 +11,16 @@ const User = db.sequelize.define(
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
-            type: Sequelize.INTEGER,
+            type: Sequelize.SMALLINT,
         },
         email: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(75),
             unique: true,
             allowNull: false
         },
 
         username: {
-            type: Sequelize.STRING(50),
+            type: Sequelize.STRING(20),
             unique: true,
             allowNull: false
         },
@@ -38,13 +38,12 @@ const User = db.sequelize.define(
         },
 
         contact_number: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(15),
             allowNull: false
         },
 
         role: {
-            type: Sequelize.STRING(20),
-            allowNull: false,
+            type: Sequelize.ENUM("user", "admin"),
             defaultValue: "user"
         },
         status: {
@@ -52,14 +51,16 @@ const User = db.sequelize.define(
             allowNull: false,
             defaultValue: "pending"
         },
-        password_reset_key:{
-            type: Sequelize.STRING(500)
+        profile_photo:{
+            type:Sequelize.TEXT,
+            defaultValue:null
         }
+
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        underscored: true
+    }
 );
-
-
-//User.sync({alter:true}).then();
-
+//User.sync({alter:true}).then()
 module.exports = User;
