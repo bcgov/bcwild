@@ -161,8 +161,6 @@ const userDetails = async (req) => {
 
         return getLoginData
 
-    } else {
-        throw new UnauthorizedError("Invalid username or password")
     }
 }
 
