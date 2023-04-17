@@ -7,6 +7,7 @@ router.post('/register',registration)
 router.post('/login',login)
 router.post('/generateAccessToken',generateAccessToken)
 router.post('/profilePhoto',isAuthorized,upload,updateProfilePhoto)
+router.get('/userDetails',isAuthorized,userDetails)
 
 async function registration(req, res) {
     try {
@@ -51,4 +52,16 @@ async function updateProfilePhoto(req, res) {
         errorResponse(error, res);
     }
 }
+
+async function userDetails(req, res) {
+    try {
+        const result = await userController.userDetails(req, res);
+
+        successResponse("User details fetched successfully", result, res);
+    } catch (error) {
+
+        errorResponse(error, res);
+    }
+}
+
 module.exports = router

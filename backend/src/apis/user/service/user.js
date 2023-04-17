@@ -40,7 +40,7 @@ const registration = async (req) => {
         delete registerData.dataValues["password"];
         const fullName = `${first_name} ${last_name}`
         //sending mail
-        await registerMail(email, fullName,username)
+        await registerMail(email, fullName, username)
 
         await transaction.commit()
         return registerData
@@ -91,15 +91,19 @@ const login = async (req) => {
             const getRequestData = await adminData();
             getLoginData.signUprequests = getRequestData?.signUprequest || 0
             getLoginData.projectRequests = getRequestData?.projectRequest || 0
-        } else {
-            const projectList = await customFindAll(ProjectAccess, { username: getLoginData.username, status: "approved" }, null, null, null, ["id", "project_id"]);
-            getLoginData.projects = projectList?.rows
         }
+        const projectList = await customFindAll(ProjectAccess, { username: getLoginData.username, status: "approved" }, {
+            attributes: ["study_area", "survey_id"],
+            model: Project,
+            as: "project"
+        }, null, null, ["id", "project_id"]);
+        getLoginData.projects = projectList?.rows
+
 
         return getLoginData
 
     } else {
-        throw new UnauthorizedError("Enter valid credentials")
+        throw new UnauthorizedError("Invalid username or password")
     }
 }
 
@@ -133,9 +137,39 @@ const updateProfilePhoto = async (req) => {
     return updateData
 }
 
+const userDetails = async (req) => {
+
+    let getLoginData = await dataExist(User, { username: req.decoded.username })
+
+    if (getLoginData) {
+        getLoginData = getLoginData.dataValues;
+        delete getLoginData["password"];
+
+        if (getLoginData.role == "admin") {
+            const getRequestData = await adminData();
+            getLoginData.signUprequests = getRequestData?.signUprequest || 0
+            getLoginData.projectRequests = getRequestData?.projectRequest || 0
+        }
+        const projectList = await customFindAll(ProjectAccess, { username: getLoginData.username, status: "approved" }, {
+            raw:true,
+            attributes: [ "study_area", "survey_id"],
+            model: Project,
+            as: "project"
+        }, null, null, ["id", "project_id"])
+        getLoginData.projects = projectList?.rows
+
+
+        return getLoginData
+
+    } else {
+        throw new UnauthorizedError("Invalid username or password")
+    }
+}
+
 module.exports = {
     registration,
     login,
     generateAccessToken,
-    updateProfilePhoto
+    updateProfilePhoto,
+    userDetails
 }
