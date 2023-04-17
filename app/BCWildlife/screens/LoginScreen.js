@@ -4,6 +4,7 @@ import { login_url } from '../network/path';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import LoadingOverlay from '../utility/LoadingOverlay';
 import axiosInstance from '../network/AxiosUtility';
+import { setAccessToken,setRefreshToken } from '../global';
 
 
 const LoginScreen = ({ navigation }) => {
@@ -13,7 +14,23 @@ const LoginScreen = ({ navigation }) => {
   var axiosUtility = new axiosInstance.getInstanceWithoutToken();
 
   useEffect(() => {
-    navigateToDashboard();
+    
+    async function checkLogin(){
+      const session = await EncryptedStorage.getItem("user_session");
+      console.log(session);
+      if(!session){
+        return;
+      }
+      const obj = JSON.parse(session);
+      if(obj.data.role=='admin'){
+        navigation.navigate('Dashboard',{admin:true});
+      }else{
+        navigation.navigate('Dashboard',{admin:false});
+      }
+    }
+    checkLogin();
+
+
     }, [])
 
   function validateCredentials(username, password) {
@@ -79,10 +96,11 @@ const LoginScreen = ({ navigation }) => {
         
         var refreshToken = tokens.data.tokens.refreshToken;
         EncryptedStorage.setItem("refreshToken", refreshToken);
+        setRefreshToken(refreshToken);
         var accessToken = tokens.data.tokens.accessToken;
         EncryptedStorage.setItem("accessToken", accessToken);
+        setAccessToken(accessToken);
         console.log('Response tokens:', accessToken);
-        //axiosInstance.setToken(response.data.data.tokens);
         setUsername('');
         setPassword('');
         navigateToDashboard();

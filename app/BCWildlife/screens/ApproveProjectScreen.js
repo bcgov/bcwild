@@ -1,14 +1,14 @@
 import React,{useEffect,useState} from 'react';
 import { View, Text, Image, Alert,TouchableOpacity, StyleSheet } from 'react-native';
-import { getpendinguser_url } from '../network/path';
+import { getpendingprojectaccess_url } from '../network/path';
 import axiosUtility, { generateNewAccessToken } from '../network/AxiosUtility';
 import LoadingOverlay from '../utility/LoadingOverlay';
 import { ScrollView } from 'react-native-gesture-handler';
-import { statuschange_url } from '../network/path';
+import { statuschange_url,approveproj_url } from '../network/path';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { getAccessToken } from '../global';
 
-const ApproveSignupAccessScreen = (navigation) => {
+const ApproveProjectScreen = (navigation) => {
 
 
   const [items, setItems] = useState([]);
@@ -16,7 +16,7 @@ const ApproveSignupAccessScreen = (navigation) => {
   let refreshTokenCount = 0;
 
   useEffect(() => {
-    getPendingSignupAccessRequests();
+    getPendingProjectAccessRequests();
   }, [])
 
   const configAuth = () => { 
@@ -28,13 +28,39 @@ const ApproveSignupAccessScreen = (navigation) => {
 
 
 
-  const onhandleAccept = (item) => {
+  const onhandleAccept = (item,name,proname) => {
     console.log(item);
-    showAlert('Accept','Are you sure you want to accept this request? ',item);
+    console.log(name);
+    showProjectAlertScreen(proname,item, name, 'Accept');
+    //showAlert('Accept','Are you sure you want to accept '+name+' this request? ',item);
   }
   const onhandleReject = (item) => {
+    
       showAlert('Reject','Are you sure you want to reject this request?',item);
   }
+
+  const showProjectAlertScreen = (projectId,itemid, name, title) => {
+    const buttons = [
+      { text: 'Cancel', value: 'cancel' },
+      { text: 'Manager', value: 'manager' },
+      { text: 'Submitter', value: 'submitter' },
+    ];
+    let selectedValue = buttons[0].value;
+  
+    Alert.alert(
+      title,
+      `Project ID: ${projectId}\nName: ${name}`,
+      buttons.map((button) => ({
+        text: button.text,
+        onPress: () => {
+          selectedValue = button.value;
+          console.log(`Selected value: ${selectedValue}`);
+          updateStatus(itemid, selectedValue,"approved");
+        },
+        style: selectedValue === button.value ? 'default' : 'cancel',
+      }))
+    );
+  };
 
   const showAlert=(title, message,item)=> {
     Alert.alert(
@@ -47,9 +73,11 @@ const ApproveSignupAccessScreen = (navigation) => {
             console.log('OK Pressed')
             if(title=='Accept'){
               // approve network request
-              updateStatus(item, 'approved');
+              // do nothing this scenario will not occur
+              //updateStatus(item, 'approved');
             }else {
-              updateStatus(item, 'rejected');
+                console.log('reject Pressed')
+              updateStatus(item,'manager' ,'rejected');
               // reject network request
             }
             
@@ -106,9 +134,15 @@ const ApproveSignupAccessScreen = (navigation) => {
 
  
 
-    async function updateStatus(id, status) {
+    async function updateStatus(id, project_role,status) {
+        if (project_role == 'cancel') {
+            return;
+        }
+        setLoading(true);
+
       const data = {
         id,
+        project_role,
         status,
       };
       setLoading(true);
@@ -116,11 +150,11 @@ const ApproveSignupAccessScreen = (navigation) => {
       const USER_TOKEN = getAccessToken();
       const AuthStr = 'Bearer '.concat(USER_TOKEN); 
       try {
-        axiosUtility.post(statuschange_url, data,
+        axiosUtility.post(approveproj_url, data,
           { headers: { Authorization: AuthStr } })
         .then(response => {
           showAlertOnly('Success',response.message);
-          getPendingSignupAccessRequests();
+          getPendingProjectAccessRequests();
         }).catch((error) => {
           setLoading(false);
           if (error.response) {
@@ -134,10 +168,10 @@ const ApproveSignupAccessScreen = (navigation) => {
                 .then((response) => {
                   refreshTokenCount++;
                   console.log('new access token generated');
-                  axiosUtility.post(statuschange_url, data,configAuth())
+                  axiosUtility.post(approveproj_url, data,configAuth())
                   .then(response => {
                     showAlertOnly('Success',response.message);
-                    getPendingSignupAccessRequests();
+                    getPendingProjectAccessRequests();
                   }).catch((error) => {
                     setLoading(false);
                     if (error.response) {
@@ -174,11 +208,11 @@ const ApproveSignupAccessScreen = (navigation) => {
       }
     }  
 
-  const getPendingSignupAccessRequests = async () => {
+  const getPendingProjectAccessRequests = async () => {
     setLoading(true);
     
     try {
-        axiosUtility.get(getpendinguser_url, 
+        axiosUtility.get(getpendingprojectaccess_url, 
           configAuth())
         .then(response => {
           console.log(response);
@@ -203,7 +237,7 @@ const ApproveSignupAccessScreen = (navigation) => {
                 generateNewAccessToken()
                 .then((response) => {
                   console.log('new access token generated');
-                  axiosUtility.get(getpendinguser_url, 
+                  axiosUtility.get(getpendingprojectaccess_url, 
                     configAuth())
                   .then(response => {
                     console.log(response);
@@ -268,22 +302,22 @@ const ApproveSignupAccessScreen = (navigation) => {
       </TouchableOpacity>
       <View style={styles.logoContainer}>
         <Image style={styles.logo} source={require('../assets/bc_abbreviated.png')} />
-        <Text style={styles.title}>Approve Signup Access</Text>
+        <Text style={styles.title}>Approve Project Access</Text>
       </View>
       <View style={styles.cardList}>
         <ScrollView>
         {items.map((item, index) => (
           <View key={index} style={styles.card}>
-            <Text style={styles.cardName}>{item.first_name +" "+ item.last_name}  </Text>
-            <Text style={styles.cardValue}>{item.email}</Text>
+            <Text style={styles.cardName}>{item.username +" is requesting for project : "+ item.project_id}  </Text>
+            <Text style={styles.cardValue}>{item.project_role + " role is requested "}</Text>
             <View style={styles.cardButtonContainer}>
               <TouchableOpacity
-                onPress={() => onhandleAccept(item.id)}
+                onPress={() => onhandleAccept(item.id,item.username,item.project_id)}
                style={[styles.cardButton, { backgroundColor: '#234075' }]}>
                 <Text style={styles.cardButtonText}>Accept</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                onPress={() => onhandleReject(item.id)}
+                onPress={() => onhandleReject(item.id,item.username,item.project_id)}
               style={[styles.cardButton, { backgroundColor: '#ccc' }]}>
                 <Text style={styles.cardButtonText}>Reject</Text>
               </TouchableOpacity>
@@ -359,4 +393,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ApproveSignupAccessScreen;
+export default ApproveProjectScreen;

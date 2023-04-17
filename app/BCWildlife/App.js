@@ -10,9 +10,18 @@ import AddProjectScreen from './screens/AddProjectScreen';
 import ProjectRequestAccessScreen from './screens/ProjectRequestAccessScreen';
 import ApproveSignupAccessScreen from './screens/ApproveSignupAccessScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import ApproveProjectScreen from './screens/ApproveProjectScreen';
+import TelemetryTriangulationScreen from './screens/TelemetryTriangulation';
+import { useState,useEffect } from 'react';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import { setAccessToken } from './global';
+import { setRefreshToken } from './global';
+import CameraTrapDataScreen from './screens/CameraTrapDataScreen';
 
 
 const Stack = createStackNavigator();
+
+
 const MyTheme = {
   colors: {
     primary: 'rgb(255, 255, 255)',
@@ -22,6 +31,31 @@ const MyTheme = {
 
 
 function App() {
+
+
+
+  useEffect(() => {
+    async function updateLocalValues(){
+      const accToken = await EncryptedStorage.getItem("accessToken")
+      .then((token) => {
+        console.log(token)
+        setAccessToken(token);
+      }).catch((error) => {
+        console.log(error)
+      });
+
+      const refToken = await EncryptedStorage.getItem("refreshToken")
+      .then((token) => {
+        console.log(token)
+        setRefreshToken(token);
+      }).catch((error) => {
+        console.log(error)
+      });
+    }
+    updateLocalValues();
+  }, [])
+
+
   return (
     <NavigationContainer
         theme={MyTheme}
@@ -36,7 +70,10 @@ function App() {
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="AddProject" component={AddProjectScreen} />
         <Stack.Screen name="ApproveSignupAccess" component={ApproveSignupAccessScreen} />
+        <Stack.Screen name="ApproveProjectAccess" component={ApproveProjectScreen} />
        <Stack.Screen name="ProjectAccess" component={ProjectRequestAccessScreen} />
+       <Stack.Screen name='CameraTrapData' component={CameraTrapDataScreen} />
+        <Stack.Screen name='TelemetryTriangulation' component={TelemetryTriangulationScreen} />
         
       </Stack.Navigator>
     </NavigationContainer>

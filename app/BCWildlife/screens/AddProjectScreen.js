@@ -5,18 +5,53 @@ import LoadingOverlay from '../utility/LoadingOverlay';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { addproject_url } from '../network/path';
 import axiosUtility from '../network/AxiosUtility';
+import DateTimePickerModal from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
+import { getAccessToken,getUsernameG, setUsernameG } from '../global';
+
 
 const AddProjectScreen = () => {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
-  const [date,setDate] = useState('');
-  const [projectId,setProjectId] = useState('');
-  const [studyArea,setStudyArea] = useState('');
-  const [surveyId,setSurveyId] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  let refreshTokenCount = 0;
+
+  const configAuth = () => { 
+    let token = getAccessToken();
+    let AuthStr = 'Bearer '.concat(token);
+    return { headers: { Authorization: AuthStr } };
+  }
 
   useEffect( () => {
       handleLocalValue();
     }, [])
+
+    const navigateToDashboard = async () => {
+      const session = await EncryptedStorage.getItem("user_session");
+      console.log(session);
+      if(!session){
+        return;
+      }
+      const obj = JSON.parse(session);
+      if(obj.data.role=='admin'){
+        navigation.navigate('Dashboard',{admin:true});
+      }else{
+        navigation.navigate('Dashboard',{admin:false});
+      }
+    }
+
+    const handleDateChange = (event, newDate) => {
+      setShowPicker(Platform.OS === 'ios');
+      if (newDate !== undefined) {
+        setDate(newDate);
+      }
+    };
+  
+    const togglePicker = () => {
+      setShowPicker(true);
+    };
+  
 
     const handleLocalValue =  () => {
       (async () => {
@@ -27,22 +62,13 @@ const AddProjectScreen = () => {
         console.log(tokendata);
         let dataitem = tokendata.data.username;
         console.log(dataitem);
+        setUsernameG(dataitem);
         setUsername(dataitem);
       }).catch((error) => {
         console.log(error)
       });
     })();
-
-      const today = new Date();
-
-      const day = today.getDate().toString().padStart(2, '0');
-      const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(today);
-      const year = today.getFullYear();
-
-      const dateString = `${day} ${month} ${year}`;
-      setDate(dateString);
-    
-    }
+  }
 
     const showAlertOnly=(title, message)=> {
       Alert.alert(
@@ -59,94 +85,88 @@ const AddProjectScreen = () => {
       );
     }
 
-    const clearAllValues = () => {
-      setProjectId('');
-      setStudyArea('');
-      setSurveyId('');
-    }
+
 
     const handleAddProject = () => {
-      if(projectId=='' || studyArea=='' || surveyId==''){
+      if(this.projectId=='' || this.studyArea=='' || this.surveyId==''){
         showAlertOnly('Error','Please fill all the fields');
       }else{
         setLoading(true);
-        addProjectNetworkCall(username, projectId, studyArea, surveyId, date);
-        //showAlertOnly('Success','Project added successfully');
-        //clearAllValues();
+       addProjectNetworkCall();
       }
     }
 
     async function addProjectNetworkCall(username, projectId, studyArea, surveyId, creationDate) {
-      if (!username || username.trim() === '') {
-        console.error('Username cannot be null or empty.');
-        return;
-      }
     
-      if (!projectId || projectId.trim() === '') {
-        console.error('Project ID cannot be null or empty.');
-        return;
-      }
-    
-      if (!studyArea || studyArea.trim() === '') {
-        console.error('Study area cannot be null or empty.');
-        return;
-      }
-    
-      if (!surveyId || surveyId.trim() === '') {
-        console.error('Survey ID cannot be null or empty.');
-        return;
-      }
-    
-      if (!creationDate || creationDate.trim() === '') {
-        console.error('Creation date cannot be null or empty.');
-        return;
-      }
-    
-      // Convert creationDate to required format (DD/MM/YYYY)
-      const dateObj = new Date(creationDate);
-      const day = dateObj.getDate().toString().padStart(2, '0');
-      const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-      const year = dateObj.getFullYear().toString();
-      const formattedDate = `${day}/${month}/${year}`;
     
       const data = {
-        username,
-        project_id: projectId,
-        study_area: studyArea,
-        survey_id: surveyId,
-        creation_date: formattedDate,
+        username:getUsernameG(),
+        project_id: this.projectId,
+        study_area: this.studyArea,
+        survey_id: this.surveyId,
+        creation_date: date,
       };
-    
-      
-      try {
-        const USER_TOKEN = await EncryptedStorage.getItem('accessToken')
-      const AuthStr = 'Bearer '.concat(USER_TOKEN); 
+  
+      //console.log('configAuth',configAuth());
 
-        axiosUtility.post(addproject_url, data,
-          { headers: { Authorization: AuthStr } })
-        .then(response => {
-          setLoading(false);
-          console.log('Response:', response.data);
-          showAlertOnly('Success','Project added successfully');
-          clearAllValues();
-        }).catch((error) => {
-          setLoading(false);
-          if (error.response) {
-            console.log('Response error:', error.response.data);
-            showAlertOnly('Error',error.response.data.message);
-          } else if (error.request) {
-            console.log('Request error:', error.request);
-            showAlertOnly('Error','Request error');
-          } else {
-            console.log('Error', error.message);
-            showAlertOnly('Error','Error');
-          }
-        });
-      } catch (error) {
+    try{
+      axiosUtility.post(addproject_url, data, configAuth())
+      .then((response) => {
+        console.log(response);
         setLoading(false);
-        console.error(error);
-      }
+        showAlertOnly('Success','Project added successfully');
+        navigateToDashboard();
+      }).catch((error) => {
+        setLoading(false);
+        if (error.response) {
+          let errorMessage = error.response.data.message;
+          if(errorMessage.indexOf('token') > -1 && refreshTokenCount < 1){
+            generateNewAccessToken()
+            .then((response) => {
+              refreshTokenCount++;
+              console.log('new access token generated');
+              axiosUtility.post(addproject_url, data, configAuth())
+              .then(response => {
+                showAlertOnly('Success',response.message);
+                navigateToDashboard();
+                setLoading(false);
+              }).catch((error) => {
+                setLoading(false);
+                if (error.response) {
+                  console.log('Response error:', error.response.data);
+                  showAlertOnly('Error',error.response.data.message);
+                } else if (error.request) {
+                  console.log('Request error:', error.request);
+                  showAlertOnly('Error',error.response.data.message);
+                } else {
+                  console.log('Error message:', error.message);
+                  showAlertOnly('Error',error.response.data.message);
+                }
+              });
+            }).catch((error) => {
+              refreshTokenCount++;
+              console.log('error generating new access token');
+            });
+          }
+          console.log('Response error:', error.response.data);
+          showAlertOnly('Error',error.response.data.message);
+        } else if (error.request) {
+          console.log('Request error:', error.request);
+          showAlertOnly('Error',error.response.data.message);
+        } else {
+          console.log('Error message:', error.message);
+          showAlertOnly('Error',error.response.data.message);
+        }
+      });
+
+    }catch(error){
+      console.log(error);
+      setLoading(false);
+      showAlertOnly('Error','Something went wrong');
+  
     }
+
+  }
     
 
   return (
@@ -157,25 +177,32 @@ const AddProjectScreen = () => {
       </View>
       <View style={styles.formContainer}>
         <TextInput style={styles.input} editable={false} 
-         value={username} />
+         value={username}
+          />
         <TextInput style={styles.input} placeholder="Project ID" 
-        
-        onChange={setProjectId}/>
+        onChangeText={(text) => this.projectId = text}/>
 
         <TextInput style={styles.input} placeholder="Study Area" 
-        
-        onChange={setStudyArea}/>
+        onChangeText={(text) => this.studyArea = text}
+        />
 
         <TextInput style={styles.input} placeholder="Survey ID" 
-        
-        onChange={setSurveyId}/>
+        onChangeText={(text) => this.surveyId = text}
+        />
 
-        <TextInput style={styles.input} placeholder="Creation Date"
+      <TextInput
+        style={styles.input}
+        value={date.toLocaleDateString()}
+        onFocus={togglePicker}
+      />
+      {showPicker && (
+        <DateTimePickerModal
+          mode="date"
           value={date}
-        onChange={setDate}
-         />
-             
-
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
          
         <TouchableOpacity style={styles.addButton}
         onPress={()=>handleAddProject()}>

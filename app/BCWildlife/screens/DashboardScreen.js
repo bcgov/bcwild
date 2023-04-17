@@ -9,9 +9,20 @@ const DashboardScreen = ({route,navigation}) => {
   const { admin } = route.params;
   
 
+  const handleTelemetryTriangulation = () => {
+    navigation.navigate('TelemetryTriangulation');
+  }
+
+  const handleCameraTrapData = () => {
+    navigation.navigate('CameraTrapData');
+  }
   
   const handleApproveSignupReqs = () => {
     navigation.navigate('ApproveSignupAccess');
+  }
+
+  const handleApproveProjectAccess = () => {
+    navigation.navigate('ApproveProjectAccess');
   }
 
   const handleAddProject = () => {
@@ -76,8 +87,13 @@ const DashboardScreen = ({route,navigation}) => {
          flexDirection:'row',alignItems:'center',
          justifyContent:'space-evenly',
          backgroundColor:'#E8F0FF'}}>
+          <TouchableOpacity onPress={()=>handleCameraTrapData()}>
           <Image style={{height:80,width:80,resizeMode:'contain'}} source={require('../assets/cam_trap.png')} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={()=>handleTelemetryTriangulation()}>
           <Image style={{height:95,width:95, resizeMode:'contain'}} source={require('../assets/telemetry.png')} />
+          </TouchableOpacity>
       </View>
       <View style={{flex:1 ,marginTop:10, flexDirection:'row',alignItems:'center'}}>
         <Image style={{height:15,width:15,marginLeft:20,resizeMode:'contain'}} source={require('../assets/proj_req_ico.png')} />
@@ -90,7 +106,9 @@ const DashboardScreen = ({route,navigation}) => {
           flexDirection:'row',alignItems:'center',
           justifyContent:'space-evenly',
           backgroundColor:'#E8F0FF'}}>
+            <TouchableOpacity onPress={()=>handleApproveProjectAccess()}>
            <Image style={{height:90,width:90,resizeMode:'contain'}} source={require('../assets/approve_req_access.png')} />
+           </TouchableOpacity>
            <TouchableOpacity onPress={()=>handleApproveSignupReqs()}>
            <Image style={{height:85,width:85, resizeMode:'contain'}} source={require('../assets/approve_signup_access.png')} />
            </TouchableOpacity>
