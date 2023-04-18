@@ -3,11 +3,66 @@ import { View,Text,StyleSheet,
   Image,TouchableOpacity,Alert } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { BackHandler } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { getuserdetails_url } from '../network/path';
+import { useState } from 'react';
+import LoadingOverlay from '../utility/LoadingOverlay';
+import { getAccessToken } from '../global';
+import AxiosUtility from '../network/AxiosUtility';
 
 
 const DashboardScreen = ({route,navigation}) => {
   const { admin } = route.params;
+  const [projects, setProjects] = useState([]);
+  const[loading,setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let token = getAccessToken();
+    let AuthStr = 'Bearer '.concat(token);
+    const config = { headers: { Authorization: AuthStr } };
+      try {
+        const response = await AxiosUtility.get(getuserdetails_url, config);
+          setProjects(response.data.projects);
+          console.log(response.data);
+          var datavar = response.data;
+          console.log(datavar.projects);
+          EncryptedStorage.setItem("projects", JSON.stringify(datavar.projects));
+      } catch (error) {
+
+        if (error.response) {
+          console.log('Response error:', error.response.data);
+          //showAlertOnly('Error',error.response.data.message);
+        } else if (error.request) {
+          console.log('Request error:', error.request);
+          //showAlertOnly('Error',error.response.data.message);
+        } else {
+          console.log('Error message:', error.message);
+          //showAlertOnly('Error',error.response.data.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [])
   
+
+  const showAlertOnly=(title, message)=> {
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: 'Ok',
+          onPress: () =>{
+            console.log('OK Pressed')
+          } 
+        }
+      ]
+    );
+  }
+
 
   const handleTelemetryTriangulation = () => {
     navigation.navigate('TelemetryTriangulation');
@@ -27,6 +82,11 @@ const DashboardScreen = ({route,navigation}) => {
 
   const handleAddProject = () => {
     navigation.navigate('AddProject');
+  }
+
+  const handleProfileNavigation = () => {
+    console.log('Profile');
+    navigation.navigate('Profile');
   }
 
   const showAlert=(title, message)=> {
@@ -60,7 +120,8 @@ const DashboardScreen = ({route,navigation}) => {
   };
 
   return (
-    <View style={{flex:1,flexDirection:'column',backgroundColor: 'white',rowGap:35}}>
+    <View style={{flex:1,flexDirection:'column',backgroundColor: 'white'}}>
+      <ScrollView>
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           <Image style={styles.image} source={require('../assets/bc_notext.png')} />
@@ -83,7 +144,7 @@ const DashboardScreen = ({route,navigation}) => {
          </TouchableOpacity>
       </View>
 
-      <View style={{flex:1 ,marginTop:10,paddingVertical:50,
+      <View style={{flex:1 ,marginTop:15,paddingVertical:10,
          flexDirection:'row',alignItems:'center',
          justifyContent:'space-evenly',
          backgroundColor:'#E8F0FF'}}>
@@ -102,7 +163,7 @@ const DashboardScreen = ({route,navigation}) => {
           </TouchableOpacity>
      </View>
       {admin ? (
-        <View style={{flex:1 ,marginTop:0,paddingVertical:50,
+        <View style={{flex:1 ,marginTop:15,paddingVertical:10,
           flexDirection:'row',alignItems:'center',
           justifyContent:'space-evenly',
           backgroundColor:'#E8F0FF'}}>
@@ -118,9 +179,20 @@ const DashboardScreen = ({route,navigation}) => {
         <Image style={{height:25,width:25,marginLeft:20,resizeMode:'contain'}} source={require('../assets/ack_ico.png')} />
         <Text style={{fontSize:20,color:'black',fontWeight:'bold',marginLeft:10}}>Acknowledgements / Glossary</Text>
      </View>
-      <View style={{flex:4}}>
+      <View style={{flex:2}}>
         <></>
       </View>  
+      </ScrollView>
+      <View style={{flex:0.4, backgroundColor:'#234075',flexDirection:'column',
+      justifyContent:'center',alignItems:'center'
+       } }>
+        <TouchableOpacity style={{alignSelf:'flex-end',marginRight:20}}
+        onPress={()=>handleProfileNavigation()}>
+          <Image style={{height:50,width:50,
+            resizeMode:'contain'}} source={require('../assets/placeholder_profile.png')} />
+        </TouchableOpacity>
+      </View>  
+      <LoadingOverlay loading={loading} />
     </View>
   );
  

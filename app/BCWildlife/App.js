@@ -17,6 +17,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import { setAccessToken } from './global';
 import { setRefreshToken } from './global';
 import CameraTrapDataScreen from './screens/CameraTrapDataScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 
 const Stack = createStackNavigator();
@@ -72,6 +73,7 @@ function App() {
         <Stack.Screen name="ApproveSignupAccess" component={ApproveSignupAccessScreen} />
         <Stack.Screen name="ApproveProjectAccess" component={ApproveProjectScreen} />
        <Stack.Screen name="ProjectAccess" component={ProjectRequestAccessScreen} />
+       <Stack.Screen name='Profile' component={ProfileScreen} />
        <Stack.Screen name='CameraTrapData' component={CameraTrapDataScreen} />
         <Stack.Screen name='TelemetryTriangulation' component={TelemetryTriangulationScreen} />
         

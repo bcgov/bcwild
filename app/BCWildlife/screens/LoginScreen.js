@@ -21,6 +21,15 @@ const LoginScreen = ({ navigation }) => {
       if(!session){
         return;
       }
+      const fetchToken = await EncryptedStorage.getItem("accessToken");
+      console.log(fetchToken);
+      setAccessToken(fetchToken);
+
+      const fetchRefreshToken = await EncryptedStorage.getItem("refreshToken");
+      console.log(fetchRefreshToken);
+      setRefreshToken(fetchRefreshToken);
+
+
       const obj = JSON.parse(session);
       if(obj.data.role=='admin'){
         navigation.navigate('Dashboard',{admin:true});

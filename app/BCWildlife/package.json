@@ -12,6 +12,7 @@
   "dependencies": {
     "@bam.tech/react-native-make": "^3.0.3",
     "@react-native-community/datetimepicker": "^7.0.1",
+    "@react-native-community/geolocation": "^3.0.6",
     "@react-native-picker/picker": "^2.4.10",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/stack": "^6.3.16",
@@ -19,6 +20,7 @@
     "axios-debug-log": "^1.0.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "numeric": "^1.2.6",
+    "proj4": "^2.9.0",
     "react": "18.2.0",
     "react-native": "0.71.4",
     "react-native-encrypted-storage": "^4.0.3",
