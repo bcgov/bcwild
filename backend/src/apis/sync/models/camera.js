@@ -135,11 +135,11 @@ const CameraTrapData = db.sequelize.define(
 );
 
 
-CameraTrapData.belongsTo(Project,{
-    foreignKey:"project_id",
-    targetKey:"project_id",
-    as:"project"
-})
+// CameraTrapData.belongsTo(Project,{
+//     foreignKey:"project_id",
+//     targetKey:"project_id",
+//     as:"project"
+// })
 
 // CameraTrapData.belongsTo(User,{
 //     foreignKey:"created_by",
@@ -151,5 +151,6 @@ CameraTrapData.belongsTo(Project,{
 //     targetKey:"username",
 //     as:"user"
 // })
+
 
 module.exports = CameraTrapData;

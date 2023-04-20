@@ -91,11 +91,11 @@ const Telemetry = db.sequelize.define(
 );
 
 
-Telemetry.belongsTo(Project,{
-    foreignKey:"project_id",
-    targetKey:"project_id",
-    as:"project"
-})
+// Telemetry.belongsTo(Project,{
+//     foreignKey:"project_id",
+//     targetKey:"project_id",
+//     as:"project"
+// })
 
 // Telemetry.belongsTo(User,{
 //     foreignKey:"created_by",

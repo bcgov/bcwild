@@ -1,8 +1,7 @@
 
 
-const customCreate = async(model,data)=>{
-
-    return await model.create(data)
+const customCreate = async (model, data, transaction) => {
+    return await model.create(data, transaction)
 }
 
 const customUpdate = async(model,where,data)=>{
