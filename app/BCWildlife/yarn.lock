@@ -7568,6 +7568,11 @@
   "resolved" "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz"
   "version" "0.0.3"
 
+"trilateration@^0.0.1":
+  "integrity" "sha512-/t6ykjzK4B0P0Cz/GhiGaSiq6IBrb0Jwd3flfktCBMOwodRXZnbhQ0wcFl9EXKSfE46j7IVMPv5CnfDHp648Iw=="
+  "resolved" "https://registry.npmjs.org/trilateration/-/trilateration-0.0.1.tgz"
+  "version" "0.0.1"
+
 "tslib@^1.8.1":
   "integrity" "sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg=="
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"

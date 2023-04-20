@@ -2,7 +2,7 @@
 #
 .DS_Store
 # server
-network/
+#network/
 # Xcode
 #
 build/

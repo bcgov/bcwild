@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#234075',
     padding: 10,
     borderRadius: 5,
   },
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   triangulateButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#234075',
     padding: 10,
     borderRadius: 5,
     alignSelf: 'center',
