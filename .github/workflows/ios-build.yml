@@ -1,0 +1,43 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install dependencies
+        run: |
+          cd app
+          cd BCWildlife
+          npm install
+          cd ../
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd app/BCWildlife/ios
+          pod install
+          cd ../../
+
+      - name: Build iOS app
+        run: |
+          cd app/BCWildlife/ios
+          xcodebuild -workspace <project-name>.xcworkspace -scheme <target-scheme> -configuration <build-configuration> -sdk iphoneos build
+          cd ../../
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ios-build
+          path: app/BCWildlife/ios/build/<app-name>.ipa
