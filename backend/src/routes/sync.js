@@ -4,14 +4,14 @@ const { successResponse, errorResponse } = require('../helpers/apiResponse')
 const {isAuthorized} = require("../helpers/auth")
 
 router.post('/pushChanges',isAuthorized,pushChanges)
-router.get('/pullChanges',isAuthorized,pullChanges)
+//router.get('/pullChanges',isAuthorized,pullChanges)
 
 
 async function pushChanges(req, res) {
     try {
         const result = await controller.pushChanges(req, res);
 
-        successResponse("Pushed changes successfully", result, res);
+        successResponse("Pushed changes successfully", {}, res);
     } catch (error) {
 
         errorResponse(error, res);

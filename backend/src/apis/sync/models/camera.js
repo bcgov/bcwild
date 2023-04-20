@@ -13,6 +13,9 @@ const CameraTrapData = db.sequelize.define(
             primaryKey: true,
             type: Sequelize.INTEGER,
         },
+        record_identifier:{
+            type: Sequelize.STRING(50),
+        },
         project_id: {
             type: Sequelize.STRING(20),
         },
@@ -135,11 +138,11 @@ const CameraTrapData = db.sequelize.define(
 );
 
 
-CameraTrapData.belongsTo(Project,{
-    foreignKey:"project_id",
-    targetKey:"project_id",
-    as:"project"
-})
+// CameraTrapData.belongsTo(Project,{
+//     foreignKey:"project_id",
+//     targetKey:"project_id",
+//     as:"project"
+// })
 
 // CameraTrapData.belongsTo(User,{
 //     foreignKey:"created_by",
@@ -152,4 +155,5 @@ CameraTrapData.belongsTo(Project,{
 //     as:"user"
 // })
 
+//CameraTrapData.sync({alter:true}).then()
 module.exports = CameraTrapData;

@@ -14,6 +14,9 @@ const Telemetry = db.sequelize.define(
             primaryKey: true,
             type: Sequelize.INTEGER,
         },
+        record_identifier:{
+            type: Sequelize.STRING(50),
+        },
         project_id: {
             type: Sequelize.STRING(20),
         },
@@ -91,11 +94,11 @@ const Telemetry = db.sequelize.define(
 );
 
 
-Telemetry.belongsTo(Project,{
-    foreignKey:"project_id",
-    targetKey:"project_id",
-    as:"project"
-})
+// Telemetry.belongsTo(Project,{
+//     foreignKey:"project_id",
+//     targetKey:"project_id",
+//     as:"project"
+// })
 
 // Telemetry.belongsTo(User,{
 //     foreignKey:"created_by",
@@ -114,5 +117,5 @@ Telemetry.belongsTo(Project,{
 //     as:"ground_telemetry"
 // })
 
-
+//Telemetry.sync({alter:true}).then()
 module.exports = Telemetry;
