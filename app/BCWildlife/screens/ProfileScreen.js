@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import RecordsRepo from '../utility/RecordsRepo';
 
 const ProfileScreen = ({navigation}) => {
   const [fname,setFname] = useState('');
@@ -29,6 +30,15 @@ const ProfileScreen = ({navigation}) => {
     navigation.navigate('ResetPassword');
   };
 
+  const handleExport = () => {
+    // handle export logic
+    RecordsRepo.getUnsyncedRecords().then((records) => {
+      console.log(records);
+    });
+
+    console.log('Export');  
+
+  };
   const handleUpdatePhoto = () => {
     // handle user photo update logic
     console.log('Update Photo');
@@ -60,9 +70,7 @@ const ProfileScreen = ({navigation}) => {
     
   };
 
-  const renderProjects = () => {
-    // render list of projects
-  };
+
 
   const handleLogout = async () => {
     try{
@@ -181,20 +189,26 @@ const ProfileScreen = ({navigation}) => {
 
       <Text style={styles.sectionHeader}>Project Authorization </Text>
       <View style={styles.section}>
-      <View>
-      {projects.map((project, index) => (
-        <View key={project.id}>
-          <Text style={{fontSize:20,marginLeft:15}}>{project.project_id}</Text>
-          {index !== projects.length - 1 && <View
-           style={{
-            borderBottomColor: 'black',
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            }}
-           />
-           }
-        </View>
-      ))}
-    </View>
+          <View>
+            {projects.map((project, index) => (
+              <View key={project.id}>
+                <Text style={{fontSize:20,marginLeft:15}}>{project.project_id}</Text>
+                {index !== projects.length - 1 && <View
+                style={{
+                  borderBottomColor: 'black',
+                  borderBottomWidth: StyleSheet.hairlineWidth,
+                  }}
+                />
+                }
+              </View>
+            ))}
+          </View>
+      </View>
+      <View style={{marginTop: 5,
+         width: '100%',marginBottom:35}}>
+        <TouchableOpacity onPress={handleExport}>
+          <Text style={styles.sectionHeaderResetPass}>Click Here to Export</Text>
+        </TouchableOpacity>
       </View>
     </View>
     </ScrollView>

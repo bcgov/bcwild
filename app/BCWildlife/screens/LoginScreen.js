@@ -4,7 +4,8 @@ import { login_url } from '../network/path';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import LoadingOverlay from '../utility/LoadingOverlay';
 import axiosInstance from '../network/AxiosUtility';
-import { setAccessToken,setRefreshToken } from '../global';
+import { setAccessToken,setRefreshToken,setUsernameG } from '../global';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 const LoginScreen = ({ navigation }) => {
@@ -28,6 +29,18 @@ const LoginScreen = ({ navigation }) => {
       const fetchRefreshToken = await EncryptedStorage.getItem("refreshToken");
       console.log(fetchRefreshToken);
       setRefreshToken(fetchRefreshToken);
+
+      const token = await EncryptedStorage.getItem("user_session")
+      .then((token) => {
+        console.log(token) 
+        tokendata = JSON.parse(token);
+        console.log(tokendata);
+        let dataitem = tokendata.data.username;
+        console.log(dataitem);
+        setUsernameG(dataitem);
+      }).catch((error) => {
+        console.log(error)
+      });
 
 
       const obj = JSON.parse(session);
@@ -139,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
 
 
   return (
-  
+      <ScrollView>
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center',backgroundColor: 'white' }}>
       <Image source={require('../assets/bc_logo.png')}
        style={{ width: 200, height: 150 ,resizeMode:'contain',
@@ -215,6 +228,7 @@ const LoginScreen = ({ navigation }) => {
       </View>
       <LoadingOverlay loading={loading} />
     </View>
+    </ScrollView>
   );
 };
 

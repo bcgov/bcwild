@@ -31,7 +31,7 @@ const Location = () => {
         console.log('Location permission denied');
       }
     } catch (err) {
-      console.warn(err);
+     // console.warn(err);
     }
   };
 

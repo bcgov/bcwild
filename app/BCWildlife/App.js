@@ -18,6 +18,7 @@ import { setAccessToken } from './global';
 import { setRefreshToken } from './global';
 import CameraTrapDataScreen from './screens/CameraTrapDataScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import TelemetryFormScreen from './screens/TelemetryFormScreen';
 
 
 const Stack = createStackNavigator();
@@ -76,6 +77,7 @@ function App() {
        <Stack.Screen name='Profile' component={ProfileScreen} />
        <Stack.Screen name='CameraTrapData' component={CameraTrapDataScreen} />
         <Stack.Screen name='TelemetryTriangulation' component={TelemetryTriangulationScreen} />
+        <Stack.Screen name='TelemetryForm' component={TelemetryFormScreen} />
         
       </Stack.Navigator>
     </NavigationContainer>

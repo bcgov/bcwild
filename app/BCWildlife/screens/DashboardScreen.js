@@ -63,6 +63,10 @@ const DashboardScreen = ({route,navigation}) => {
     );
   }
 
+  const hanldeTelemetryForm = () => {
+    navigation.navigate('TelemetryForm');
+  }
+
 
   const handleTelemetryTriangulation = () => {
     navigation.navigate('TelemetryTriangulation');
@@ -152,8 +156,12 @@ const DashboardScreen = ({route,navigation}) => {
           <Image style={{height:80,width:80,resizeMode:'contain'}} source={require('../assets/cam_trap.png')} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={()=>handleTelemetryTriangulation()}>
+          <TouchableOpacity onPress={()=>hanldeTelemetryForm()}>
           <Image style={{height:95,width:95, resizeMode:'contain'}} source={require('../assets/telemetry.png')} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={()=>handleTelemetryTriangulation()}>
+          <Image style={{height:100,width:100, resizeMode:'contain'}} source={require('../assets/gtele.png')} />
           </TouchableOpacity>
       </View>
       <View style={{flex:1 ,marginTop:10, flexDirection:'row',alignItems:'center'}}>
@@ -194,6 +202,7 @@ const DashboardScreen = ({route,navigation}) => {
       </View>  
       <LoadingOverlay loading={loading} />
     </View>
+    
   );
  
 };
