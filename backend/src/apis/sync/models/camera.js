@@ -13,6 +13,9 @@ const CameraTrapData = db.sequelize.define(
             primaryKey: true,
             type: Sequelize.INTEGER,
         },
+        record_identifier:{
+            type: Sequelize.STRING(50),
+        },
         project_id: {
             type: Sequelize.STRING(20),
         },
@@ -152,5 +155,5 @@ const CameraTrapData = db.sequelize.define(
 //     as:"user"
 // })
 
-
+//CameraTrapData.sync({alter:true}).then()
 module.exports = CameraTrapData;

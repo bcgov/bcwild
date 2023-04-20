@@ -1,7 +1,14 @@
 
 
-const customCreate = async (model, data, transaction) => {
-    return await model.create(data, transaction)
+const customCreate = async (model, data, transaction,where) => {
+
+    const dataExists = await model.findOne({ where: where});
+    if(dataExists){     
+        return false
+    }else{
+        return await model.create(data, transaction)
+    }
+    
 }
 
 const customUpdate = async(model,where,data)=>{

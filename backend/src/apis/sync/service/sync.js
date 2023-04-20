@@ -17,7 +17,8 @@ const pushChanges = async (req) => {
 
             const model = data.record_identifier.startsWith("TELE") ? Telemetry : CameraTrapData;
             data.data.created_by = username
-            await customCreate(model, data.data, { transaction: transaction })
+            data.data.record_identifier = data.record_identifier
+            await customCreate(model, data.data, { transaction: transaction },{record_identifier:data.record_identifier})
 
         }
 
