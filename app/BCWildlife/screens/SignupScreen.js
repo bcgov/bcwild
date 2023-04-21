@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-native';
 import { View, Text, 
-  Image, TextInput,Alert,
+  Image, TextInput,
   TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Toast from 'react-native-simple-toast';
