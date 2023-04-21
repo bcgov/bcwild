@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version: '16.x'
 
       - name: Install dependencies
         run: |
@@ -33,7 +33,7 @@ jobs:
       - name: Build iOS app
         run: |
           cd app/BCWildlife/ios
-          xcodebuild -workspace <project-name>.xcworkspace -scheme <target-scheme> -configuration <build-configuration> -sdk iphoneos build
+          xcodebuild -workspace BCWild.xcworkspace -scheme BCWild -configuration Release -sdk iphoneos build
           cd ../../
 
       - name: Upload artifact
