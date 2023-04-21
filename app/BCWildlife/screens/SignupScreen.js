@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-native';
 import { View, Text, 
-  Image, TextInput,
+  Image, TextInput,Alert,
   TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Toast from 'react-native-simple-toast';
@@ -159,7 +159,19 @@ const SignupScreen = ({ navigation }) => {
 
 
   const showToast = (message) => {
-    Toast.show(message,Toast.SHORT);
+    Alert.alert(
+      'BC Wildlife',
+      message,
+      [
+        {
+          text: 'OK',
+          onPress: () =>{
+            console.log('OK Pressed')
+            
+          } 
+        }
+      ]
+    );
   };
 
   const isValidEmail=(email) =>{
