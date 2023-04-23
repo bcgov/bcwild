@@ -4,7 +4,6 @@ import { View, Text,
   Image, TextInput,
   TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import Toast from 'react-native-simple-toast';
 import axiosUtility from '../network/AxiosUtility';
 import { register_url } from '../network/path';
 import LoadingOverlay from '../utility/LoadingOverlay';
