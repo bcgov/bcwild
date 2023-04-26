@@ -13,5 +13,6 @@ export const getpendingprojectaccess_url= base_url + "/admin/project/requestList
 export const approveproj_url = base_url + "/admin/project/changeProjectRequestStatus";
 export const getuserdetails_url = base_url + "/user/userDetails";
 export const dataexport_url = base_url + "/dataExport";
+export const datasyncpush_url = base_url + "/pushChanges";
 
 

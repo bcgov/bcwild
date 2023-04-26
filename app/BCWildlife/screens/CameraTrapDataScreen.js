@@ -89,82 +89,82 @@ const CameraTrapDataScreen = () => {
     // optional values
 
     if (securityBox) {
-      data.securityBox = securityBox;
+      data.security_box = securityBox;
     }
     if (cameraHeight) {
-      data.cameraHeight = cameraHeight;
+      data.camera_height = cameraHeight;
     }
 
     if (sdCardId) {
-      data.sdCardId = sdCardId;
+      data.sd_card_id = sdCardId;
     }
     if (keyId) {
-      data.keyId = keyId;
+      data.key_id = keyId;
     }
 
     if (habitatType) {
-      data.habitatType = habitatType;
+      data.habitat_type = habitatType;
     }
     if (customHabitat) {
-      data.habitatType = customHabitatValue;
+      data.habitat_type = customHabitatValue;
     }
   
     
   
     if (targetFeature) {
-      data.targetFeature = targetFeature;
+      data.target_feature = targetFeature;
     }
     if (customTargetFeature) {
-      data.targetFeature = customTargetFeatureValue;
+      data.target_feature = customTargetFeatureValue;
     }
   
     if (distanceFeature) {
-      data.distanceFeature = distanceFeature;
+      data.distan_feature = distanceFeature;
     }
     if (quitePeriod) {
-      data.quitePeriod = quitePeriod;
+      data.quiet_period = quitePeriod;
     }
     if (triggerSensitivity) {
-      data.triggerSensitivity = triggerSensitivity;
+      data.trigger_sensitivity = triggerSensitivity;
     }
     if (triggerTiming) {
-      data.triggerTiming = triggerTiming;
+      data.trigger_timing = triggerTiming;
     }
     if (photosTrigger) {
-      data.photosTrigger = photosTrigger;
+      data.photos_trigger = photosTrigger;
     }
 
     if (numOfPhotos) {
-      data.numOfPhotos = numOfPhotos;
+      data.number_of_photos = numOfPhotos;
     }
     if (batteryPercentage) {
-      data.batteryPercentage = batteryPercentage;
+      data.battery_percent = batteryPercentage;
     }
 
     if (batteriesReplaced) {
-      data.batteriesReplaced = batteriesReplaced;
+      data.batteries_replaced = batteriesReplaced;
     }
 
     if (cameraAttached) {
-      data.cameraAttached = cameraAttached;
+     // data.camera_attached = cameraAttached;
     }
 
     if(selectedValueProject){
-      data.project = selectedValueProject;
+      data.project_id = selectedValueProject;
     }else{
       Alert.alert('Project is required');
       return;
     }
 
     if(surveyId){
-      data.surveyId = surveyId;
+      data.survey_id = surveyId;
     }else{
       Alert.alert('Survey ID is required');
       return;
     }
 
     if(fieldcrew){
-      data.fieldcrew = fieldcrew;
+      data.field_crew = fieldcrew;
     }else{
       Alert.alert('Field Crew is required');
       return;
@@ -172,20 +172,20 @@ const CameraTrapDataScreen = () => {
 
 
     if(dateTime){
-      data.dateTime = dateTime;
+      data.date_time = dateTime;
     }else{
       Alert.alert('Date and Time is required');
       return;
     }
     if(stationId){
-      data.stationId = stationId;
+      data.station_id = stationId;
     }else{
       Alert.alert('Station ID is required');
       return;
     }
 
     if(deployCheck){
-        data.deployCheck = deployCheck;
+        data.deploy_check = deployCheck;
     }else{
       Alert.alert('Deploy Check is required');
       return;
@@ -193,40 +193,40 @@ const CameraTrapDataScreen = () => {
     
     if(deployCheck == 'deploy'){
       if(stationNorthing){
-        data.stationNorthing = stationNorthing;
+        data.station_northing = stationNorthing;
       }else{
         Alert.alert('Station Northing is required');
         return;
       }
       if(stationEasting){
-        data.stationEasting = stationEasting;
+        data.station_easting = stationEasting;
       }else{
         Alert.alert('Station Easting is required');
         return;
       }
       if(cameraDirection){
-        data.cameraDirection = cameraDirection;
+        data.camera_compass_direction = cameraDirection;
       }else{
         Alert.alert('Camera Direction is required');
         return;
       }
       if(cameraId){
-        data.cameraId = cameraId;
+        data.camera_id = cameraId;
       }else{
         Alert.alert('Camera ID is required');
         return;
       }
       if(cameraMake){
-        data.cameraMake = cameraMake;
+        data.camera_make = cameraMake;
       }else{
         Alert.alert('Camera Make is required');
         return;
       }
       if (customCamera) {
-        data.cameraMake = customCamValue;
+        data.camera_make = customCamValue;
       }
       if(cameraModel){
-        data.cameraModel = cameraModel;
+        data.camera_model = cameraModel;
       }else{
         Alert.alert('Camera Model is required');
         return;
@@ -238,13 +238,13 @@ const CameraTrapDataScreen = () => {
         return;
       }
       if(baitLure){
-        data.baitLure = baitLure;
+        data.bait_lure = baitLure;
       }else{
         Alert.alert('Bait/Lure is required');
         return;
       }
       if (isCamActive!=null){
-        data.isCamActive = isCamActive;
+        data.camera_active = isCamActive;
       }
       
       if(comments){
@@ -257,7 +257,7 @@ const CameraTrapDataScreen = () => {
     } else{
 
       if (isCamActiveArrival!=null  ){
-        data.isCamActiveArrival = isCamActiveArrival;
+        data.camera_active = isCamActiveArrival;
       }else
       {
         Alert.alert('Camera Active is required');
@@ -265,14 +265,14 @@ const CameraTrapDataScreen = () => {
       }
 
       if (cameraDamaged){
-        data.cameraDamaged = cameraDamaged;
+        data.camera_damaged = cameraDamaged;
       }else{
         Alert.alert('Camera Damaged is required');
         return;
       }
       if(cameraDamaged == 'yes'){
         if (cameraDamagedReason){
-          data.cameraDamagedReason = cameraDamagedReason;
+          data.comments = data.comments+' - '+ cameraDamagedReason;
         }else{
           Alert.alert('Camera Damaged Reason is required');
           return;
@@ -280,25 +280,25 @@ const CameraTrapDataScreen = () => {
       }
       
       if (purposeVisit){
-        data.purposeVisit = purposeVisit;
+        data.purpose_visit = purposeVisit;
       }else{
         Alert.alert('Purpose of Visit is required');
         return;
       }
       if (cameraRemoved){
-        data.cameraRemoved = cameraRemoved;
+        data.camera_removed = cameraRemoved;
       }else{
         Alert.alert('Camera Removed is required');
         return;
       }
       if (cameraReplaced){
-        data.cameraReplaced = cameraReplaced;
+        data.camera_replaced = cameraReplaced;
       }else{
         Alert.alert('Camera Replaced is required');
         return;
       }
       if (sdCardReplaced){
-        data.sdCardReplaced = sdCardReplaced;
+        data.sd_card_replaced = sdCardReplaced;
       }else{
         Alert.alert('SD Card Replaced is required');
         return;

@@ -5,15 +5,15 @@ import {
   StyleSheet,
   Image,
   Alert,
-  TouchableOpacit,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import RecordsRepo from '../utility/RecordsRepo';
 import CustomDialogProject from '../utility/CustomDialogProject';
 import { getAccessToken } from '../global';
-import { dataexport_url } from '../network/path';
+import { dataexport_url, datasyncpush_url } from '../network/path';
 import axiosUtility from '../network/AxiosUtility';
+import LoadingOverlay from '../utility/LoadingOverlay';
 
 const ProfileScreen = ({navigation}) => {
   const [fname,setFname] = useState('');
@@ -24,6 +24,7 @@ const ProfileScreen = ({navigation}) => {
   const [projects, setProjects] = useState([]);
   const [fullname, setFullname] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   var refreshTokenCount=0;
 
 
@@ -36,7 +37,6 @@ const ProfileScreen = ({navigation}) => {
       email,
       project_id:selectedProject
     };
-
 
 
     const USER_TOKEN = getAccessToken();
@@ -127,11 +127,79 @@ const ProfileScreen = ({navigation}) => {
   };
 
   const handleSync = () => {
+    setLoading(true);
     // handle sync logic
     RecordsRepo.getUnsyncedRecords().then((records) => {
-      console.log(records);
+        console.log(records);
+        console.log('Sync');
+        if(records == 'empty'){
+          setLoading(false);
+          return;
+        }
+        const recordsObj = JSON.parse(records);
+
+        const USER_TOKEN = getAccessToken();
+        const AuthStr = 'Bearer '.concat(USER_TOKEN); 
+        try {
+          axiosUtility.post(datasyncpush_url, recordsObj,
+            { headers: { Authorization: AuthStr } })
+          .then(response => {
+            Alert.alert('Success',response.message);
+            //getPendingProjectAccessRequests();
+            setLoading(false);
+          }).catch((error) => {
+            setLoading(false);
+            if (error.response) {
+                let errorMessage = error.response.data.message;
+                if(errorMessage.indexOf('token') > -1){
+                  console.log('token expired');
+                  if(refreshTokenCount > 0){
+                    return;
+                  }
+                  generateNewAccessToken()
+                  .then((response) => {
+                    refreshTokenCount++;
+                    console.log('new access token generated');
+                    axiosUtility.post(datasyncpush_url, recordsObj,configAuth())
+                    .then(response => {
+                      Alert.alert('Success',response.message);
+                      //getPendingProjectAccessRequests();
+                    }).catch((error) => {
+                      setLoading(false);
+                      if (error.response) {
+                        console.log('Response error:', error.response.data);
+                        Alert.alert('Error',error.response.data.message);
+                      } else if (error.request) {
+                        console.log('Request error:', error.request);
+                        Alert.alert('Error','Request error' +error.response.data.message);
+                      } else {
+                        console.log('Error message:', error.message);
+                        Alert.alert('Error',error.response.data.message);
+                      }
+                    });
+                  }).catch((error) => {
+                    refreshTokenCount++;
+                    console.log('error generating new access token');
+                  });
+                }else{
+                  console.log('error message:', errorMessage+' with index '+errorMessage.indexOf('token'));
+                }
+                Alert.alert('Error',errorMessage);
+              console.log('Response error:', error.response.data);
+            } else if (error.request) {
+              console.log('Request error:', error.request);
+              Alert.alert('Error','Request error');
+            } else {
+              console.log('Error', error.message);
+              Alert.alert('Error','Error');
+            }
+            setLoading(false);
+          });
+        } catch (error) {
+          setLoading(false);
+          console.error(error);
+        }
     });
-    console.log('Sync');
   }
 
 
@@ -322,6 +390,7 @@ const ProfileScreen = ({navigation}) => {
         projects={projects}
         onSubmit={handleDialogSubmit}
       />
+      <LoadingOverlay loading={loading} />
       
     </View>
     </ScrollView>

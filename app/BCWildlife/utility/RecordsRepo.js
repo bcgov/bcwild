@@ -27,7 +27,7 @@ class RecordsRepo {
     const unsyncedRecords = await EncryptedStorage.getItem('unsynced_records');
     if (!unsyncedRecords) {
       // If no unsynced records exist, return an empty array
-      return [];
+      return 'empty';
     }
 
     // Parse the JSON string into an array
