@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-native';
 import { View, Text, 
-  Image, TextInput,
+  Image, TextInput,Linking,
   TouchableOpacity, Alert,StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import axiosUtility from '../network/AxiosUtility';
 import { register_url } from '../network/path';
 import LoadingOverlay from '../utility/LoadingOverlay';
+
+
 
 
 const SignupScreen = ({ navigation }) => {
@@ -18,8 +20,10 @@ const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm_password, setConfirmPassword] = useState('');
-  let url = register_url;
   const [showSuccess, setShowSuccess] = useState(false);
+
+  
+  
 
   const formatPhoneNumber = (text) => {
     let formattedText = text.replace(/[^0-9]/g, ''); // Remove all non-numeric characters
@@ -30,6 +34,7 @@ const SignupScreen = ({ navigation }) => {
     }
     setContactNumber(formattedText);
   }
+
 
   function CustomAlertDialog(props) {
     return (
@@ -62,6 +67,7 @@ const SignupScreen = ({ navigation }) => {
       </Modal>
     );
   }
+
 
   function handleShowSuccess() {
     setShowSuccess(true);
@@ -108,9 +114,42 @@ const SignupScreen = ({ navigation }) => {
         showToast('Passwords do not match');
         return 
     }
-    makeSignupRequest();
+    //makeSignupRequest();
+    showAlertBoxPrivacy();
   };
 
+ 
+  const openPrivacyPolicy = () => {
+    Linking.openURL('https://www2.gov.bc.ca/gov/content/home/privacy');
+  };
+
+  const handleAlertResponsePrivacy = (response) => {
+    if (response) {
+      makeSignupRequest();
+      console.log("User has consented to the privacy policy");
+    } else {
+      console.log("User has declined the privacy policy");
+    }
+  };
+
+  const showAlertBoxPrivacy = () => {
+    Alert.alert(
+      'Privacy Policy',
+      'By clicking Yes, you are consenting to our Privacy Policy. To learn more, please visit our Privacy Policy page.',
+      [
+        {
+          text: 'No',
+          onPress: () => handleAlertResponsePrivacy(false),
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: () => handleAlertResponsePrivacy(true),
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   const makeSignupRequest=async ()=>{
 
@@ -308,7 +347,13 @@ const SignupScreen = ({ navigation }) => {
           accessibilityLabel="Contact Number"
           testID="contactNumber"
         />
+       <View>
 
+       <Text style={{ fontSize:16,marginTop:10,marginBottom:10, textDecorationLine:'underline', color: 'blue' }} onPress={openPrivacyPolicy}>
+        Click to read out Privacy Policy
+      </Text>
+        </View> 
+      
       
 
         <TouchableOpacity
@@ -331,6 +376,7 @@ const SignupScreen = ({ navigation }) => {
           message="Thank you for signing up. Please wait for approval."
           onPress={handleOkPress}
         />
+        
         <LoadingOverlay loading={loading} />
       </View>
    </ScrollView>

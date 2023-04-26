@@ -32,13 +32,22 @@ const ProfileScreen = ({navigation}) => {
 
   const handleExport = () => {
     // handle export logic
-    RecordsRepo.getUnsyncedRecords().then((records) => {
-      console.log(records);
-    });
 
     console.log('Export');  
 
   };
+
+  const handleSync = () => {
+    // handle sync logic
+    RecordsRepo.getUnsyncedRecords().then((records) => {
+      console.log(records);
+    });
+    console.log('Sync');
+
+
+  }
+
+
   const handleUpdatePhoto = () => {
     // handle user photo update logic
     console.log('Update Photo');
@@ -204,12 +213,23 @@ const ProfileScreen = ({navigation}) => {
             ))}
           </View>
       </View>
-      <View style={{marginTop: 5,
-         width: '100%',marginBottom:35}}>
-        <TouchableOpacity onPress={handleExport}>
-          <Text style={styles.sectionHeaderResetPass}>Click Here to Export</Text>
-        </TouchableOpacity>
-      </View>
+
+      <View style={styles.containerExport}> 
+            <TouchableOpacity style={styles.button}
+            onPress={handleSync}>
+              <Text style={styles.textButton}>Sync Offline Data</Text>
+            </TouchableOpacity>
+       </View>
+
+        <View style={styles.containerExport}>
+            <TouchableOpacity style={styles.button}
+            onPress={handleExport}>
+              <Text style={styles.textButton}>Export Project Data</Text>
+            </TouchableOpacity>
+        </View>
+        <View style={{marginBottom:80}}>
+                </View>
+      
     </View>
     </ScrollView>
   );
@@ -286,7 +306,27 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     resizeMode: 'contain'
-  }
+  },
+
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  textButton: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  containerExport: {
+    backgroundColor: '#234075',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 15,
+    width: '100%',
+    padding: 5,
+    borderRadius: 10,
+  },
+
 });
 
 export default ProfileScreen;
