@@ -10,6 +10,10 @@ import {
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import RecordsRepo from '../utility/RecordsRepo';
+import CustomDialogProject from '../utility/CustomDialogProject';
+import { getAccessToken } from '../global';
+import { dataexport_url } from '../network/path';
+import axiosUtility from '../network/AxiosUtility';
 
 const ProfileScreen = ({navigation}) => {
   const [fname,setFname] = useState('');
@@ -19,10 +23,94 @@ const ProfileScreen = ({navigation}) => {
   const [userEmail, setUserEmail] = useState('');
   const [projects, setProjects] = useState([]);
   const [fullname, setFullname] = useState('');
+  const [dialogVisible, setDialogVisible] = useState(false);
+  var refreshTokenCount=0;
+
+
+  const handleDialogSubmit = (selectedProject, email) => {
+  
+    console.log(`Exporting data for project ${selectedProject} to email ${email}`);
+    setDialogVisible(false);
+
+    const data = {
+      email,
+      project_id:selectedProject
+    };
+
+
+
+    const USER_TOKEN = getAccessToken();
+      const AuthStr = 'Bearer '.concat(USER_TOKEN); 
+      try {
+        axiosUtility.post(dataexport_url, data,
+          { headers: { Authorization: AuthStr } })
+        .then(response => {
+          Alert.alert('Success',response.data.message);
+          //getPendingProjectAccessRequests();
+        }).catch((error) => {
+          //setLoading(false);
+          if (error.response) {
+              let errorMessage = error.response.data.message;
+              if(errorMessage.indexOf('token') > -1){
+                console.log('token expired');
+                if(refreshTokenCount > 0){
+                  return;
+                }
+                generateNewAccessToken()
+                .then((response) => {
+                  refreshTokenCount++;
+                  console.log('new access token generated');
+                  axiosUtility.post(dataexport_url, data,configAuth())
+                  .then(response => {
+                    Alert.alert('Success',response.message);
+                    //getPendingProjectAccessRequests();
+                  }).catch((error) => {
+                    //setLoading(false);
+                    if (error.response) {
+                      console.log('Response error:', error.response.data);
+                      Alert.alert('Error',error.response.data.message);
+                    } else if (error.request) {
+                      console.log('Request error:', error.request);
+                      Alert.alert('Error','Request error' +error.response.data.message);
+                    } else {
+                      console.log('Error message:', error.message);
+                      Alert.alert('Error',error.response.data.message);
+                    }
+                  });
+                }).catch((error) => {
+                  refreshTokenCount++;
+                  console.log('error generating new access token');
+                });
+              }else{
+                console.log('error message:', errorMessage+' with index '+errorMessage.indexOf('token'));
+              }
+              Alert.alert('Error',errorMessage);
+            console.log('Response error:', error.response.data);
+          } else if (error.request) {
+            console.log('Request error:', error.request);
+            Alert.alert('Error','Request error');
+          } else {
+            console.log('Error', error.message);
+            Alert.alert('Error','Error');
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      }
+  };
+
+
+
 
   useEffect(() => {
     renderProfile();
   }, []);
+
+  const configAuth = () => { 
+    let token = getAccessToken();
+    let AuthStr = 'Bearer '.concat(token);
+    return { headers: { Authorization: AuthStr } };
+  }
 
   const handleResetPassword = () => {
     // navigation to ResetPasswordScreen
@@ -30,11 +118,12 @@ const ProfileScreen = ({navigation}) => {
     navigation.navigate('ResetPassword');
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     // handle export logic
-
+    const projectsData = await EncryptedStorage.getItem('projects');
+    console.log(projectsData);
     console.log('Export');  
-
+    setDialogVisible(true);
   };
 
   const handleSync = () => {
@@ -43,8 +132,6 @@ const ProfileScreen = ({navigation}) => {
       console.log(records);
     });
     console.log('Sync');
-
-
   }
 
 
@@ -228,7 +315,13 @@ const ProfileScreen = ({navigation}) => {
             </TouchableOpacity>
         </View>
         <View style={{marginBottom:80}}>
-                </View>
+        </View>
+        <CustomDialogProject
+        visible={dialogVisible}
+        onClose={() => setDialogVisible(false)}
+        projects={projects}
+        onSubmit={handleDialogSubmit}
+      />
       
     </View>
     </ScrollView>
