@@ -18,37 +18,37 @@ const Telemetry = db.sequelize.define(
             type: Sequelize.STRING(50),
         },
         project_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         survey_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         location_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         first_location_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         animal_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         ambient_temperature: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         date:{
-            type: Sequelize.DATE,
+            type: Sequelize.STRING(50),
         },
         cloud_cover: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         precip: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         wind: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         element_identified: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         location_comments: {
             type: Sequelize.TEXT,
@@ -78,16 +78,16 @@ const Telemetry = db.sequelize.define(
             type: Sequelize.TEXT,
         },
         triangulation_use: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         triangulation: {
             type: Sequelize.ARRAY(Sequelize.JSON)
         },
         created_by:{
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         updated_by:{
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         }
     },
     { timestamps: true,underscored: true }
