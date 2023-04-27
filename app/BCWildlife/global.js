@@ -1,6 +1,17 @@
 let accessToken = '';
 let refreshToken = '';
 let usernameG='';
+let telemetryStr='';
+
+
+export const setTelemetryStr = (str) => {
+  telemetryStr = str;
+}
+
+export const getTelemetryStr = () => {
+  return telemetryStr;
+}
+
 
 
 export const setUsernameG = (name) => {

@@ -32,6 +32,7 @@ const ProfileScreen = ({navigation}) => {
   
     console.log(`Exporting data for project ${selectedProject} to email ${email}`);
     setDialogVisible(false);
+    setLoading(true);
 
     const data = {
       email,
@@ -45,9 +46,16 @@ const ProfileScreen = ({navigation}) => {
         axiosUtility.post(dataexport_url, data,
           { headers: { Authorization: AuthStr } })
         .then(response => {
+          setDialogVisible(false);
+          setLoading(false);
+          console.log(response);
+        
           Alert.alert('Success',response.data.message);
+        
           //getPendingProjectAccessRequests();
         }).catch((error) => {
+          setLoading(false);
+          setDialogVisible(false);
           //setLoading(false);
           if (error.response) {
               let errorMessage = error.response.data.message;
@@ -62,9 +70,11 @@ const ProfileScreen = ({navigation}) => {
                   console.log('new access token generated');
                   axiosUtility.post(dataexport_url, data,configAuth())
                   .then(response => {
+                    setDialogVisible(false);
                     Alert.alert('Success',response.message);
                     //getPendingProjectAccessRequests();
                   }).catch((error) => {
+                    setDialogVisible(false);
                     //setLoading(false);
                     if (error.response) {
                       console.log('Response error:', error.response.data);
@@ -78,23 +88,29 @@ const ProfileScreen = ({navigation}) => {
                     }
                   });
                 }).catch((error) => {
+                  setDialogVisible(false);
                   refreshTokenCount++;
                   console.log('error generating new access token');
                 });
               }else{
+                setDialogVisible(false);
                 console.log('error message:', errorMessage+' with index '+errorMessage.indexOf('token'));
               }
               Alert.alert('Error',errorMessage);
             console.log('Response error:', error.response.data);
+            setDialogVisible(false);
           } else if (error.request) {
+            setDialogVisible(false);
             console.log('Request error:', error.request);
             Alert.alert('Error','Request error');
           } else {
+            setDialogVisible(false);
             console.log('Error', error.message);
             Alert.alert('Error','Error');
           }
         });
       } catch (error) {
+        setLoading(false);
         console.error(error);
       }
   };
@@ -132,11 +148,23 @@ const ProfileScreen = ({navigation}) => {
     RecordsRepo.getUnsyncedRecords().then((records) => {
         console.log(records);
         console.log('Sync');
-        if(records == 'empty'){
+        var recordsObj;
+        try{
+         recordsObj = JSON.parse(records);
+        }catch(e){
+          Alert.alert('Success','No records to sync');
+          console.log('error parsing records');
           setLoading(false);
           return;
         }
-        const recordsObj = JSON.parse(records);
+
+        if(recordsObj.length < 1){
+          Alert.alert('Success','No records to sync');
+          setLoading(false);
+          return;
+        }else{
+          console.log('records to sync' + recordsObj.length);
+        }
 
         const USER_TOKEN = getAccessToken();
         const AuthStr = 'Bearer '.concat(USER_TOKEN); 
@@ -144,7 +172,15 @@ const ProfileScreen = ({navigation}) => {
           axiosUtility.post(datasyncpush_url, recordsObj,
             { headers: { Authorization: AuthStr } })
           .then(response => {
+            console.log(response);
             Alert.alert('Success',response.message);
+            RecordsRepo.deleteUnsyncedRecords()
+              .then(() => {
+                console.log('Successfully deleted all unsynced records');
+              })
+              .catch((error) => {
+                console.error('Error deleting unsynced records:', error);
+              });
             //getPendingProjectAccessRequests();
             setLoading(false);
           }).catch((error) => {
@@ -163,6 +199,14 @@ const ProfileScreen = ({navigation}) => {
                     axiosUtility.post(datasyncpush_url, recordsObj,configAuth())
                     .then(response => {
                       Alert.alert('Success',response.message);
+                      RecordsRepo.deleteUnsyncedRecords()
+                      .then(() => {
+                        console.log('Successfully deleted all unsynced records');
+                      })
+                      .catch((error) => {
+                        console.error('Error deleting unsynced records:', error);
+                      });
+                      setLoading(false);
                       //getPendingProjectAccessRequests();
                     }).catch((error) => {
                       setLoading(false);

@@ -27,7 +27,7 @@ class RecordsRepo {
     const unsyncedRecords = await EncryptedStorage.getItem('unsynced_records');
     if (!unsyncedRecords) {
       // If no unsynced records exist, return an empty array
-      return 'empty';
+      return [];
     }
 
     // Parse the JSON string into an array
@@ -52,6 +52,29 @@ class RecordsRepo {
 
     // Return the temporary array as a JSON string
     return JSON.stringify(temp);
+  }
+
+  static async deleteUnsyncedRecords() {
+    // Fetch the list of unsynced record identifiers
+    const unsyncedRecords = await EncryptedStorage.getItem('unsynced_records');
+    if (!unsyncedRecords) {
+      // If no unsynced records exist, there's nothing to delete
+      return;
+    }
+
+    // Parse the JSON string into an array of record identifiers
+    const unsyncedRecordIdentifiers = JSON.parse(unsyncedRecords);
+
+    // Loop through each unsynced record identifier and delete its associated data
+    for (let i = 0; i < unsyncedRecordIdentifiers.length; i++) {
+      const recordIdentifier = unsyncedRecordIdentifiers[i];
+
+      // Delete the record value from the local storage
+      await EncryptedStorage.removeItem(recordIdentifier);
+    }
+
+    // Delete the list of unsynced records from local storage
+    await EncryptedStorage.removeItem('unsynced_records');
   }
 }
 

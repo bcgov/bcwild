@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { ScrollView } from 'react-native-gesture-handler';
+import { getTelemetryStr,setTelemetryStr } from '../global';
 
 const TelemetryTriangulationScreen = () => {
   const [entries, setEntries] = useState([{ time: '', northing: '', easting: '', bearing: '', signal: '', bias: '' }]);
 
   const handleAddEntry = () => {
     setEntries([...entries, { time: '', northing: '', easting: '', bearing: '', signal: '', bias: '' }]);
+    setTelemetryStr(entries);
   };
 
   const handleRemoveEntry = (index) => {
@@ -21,73 +23,86 @@ const TelemetryTriangulationScreen = () => {
   };
 
   const handleTriangulate = () => {
-    // Perform the triangulation calculations and display the result
-    const bearings = [];
-  const distances = [];
-  const stationCoordinates = [];
+    console.log('Triangulate button pressed');
+    console.log(entries);
 
-  // Iterate over each entry and extract the necessary data
-  entries.forEach((entry) => {
-    const bearing = Number(entry.bearing);
-    const signal = entry.signal;
-    const bias = Number(entry.bias);
-    const distance = calculateDistance(signal, bias); // Custom function to calculate the distance
-    const stationCoordinatesEntry = [Number(entry.northing), Number(entry.easting)];
 
-    bearings.push(bearing);
-    distances.push(distance);
-    stationCoordinates.push(stationCoordinatesEntry);
-  });
+// Define constants and variables
+const speedOfLight = 299792458; // meters per second
+const signalStrength = 0.5; // default signal strength if not available
+const triangSD = 2.5; // default triangulation SD in degrees
+let bearings = [];
+let eastings = [];
+let northings = [];
+let signalStrengths = [];
 
-  // Calculate the triangulation results
-  const result = triangulate(stationCoordinates, bearings, distances); // Custom function to perform triangulation
+// Extract bearings, eastings, northings, and signal strengths from entries
+for (let i = 0; i < entries.length; i++) {
+  const entry = entries[i];
+  bearings.push(parseFloat(entry.bearing) * Math.PI / 180); // convert bearings to radians
+  eastings.push(parseFloat(entry.easting));
+  northings.push(parseFloat(entry.northing));
+  signalStrengths.push(entry.signal === "--" ? signalStrength : parseFloat(entry.signal));
+}
 
-  // Log the results to the console
-  console.log(`Latitude: ${result.latitude}\nLongitude: ${result.longitude}\nElevation: ${result.elevation}`);
+// Calculate weights based on signal strengths
+const weights = signalStrengths.map(signal => 1 / (signal * signal));
+
+// Calculate weighted means of eastings and northings
+const wsum = weights.reduce((sum, weight) => sum + weight, 0);
+const wxsum = eastings.reduce((sum, easting, index) => sum + weights[index] * easting, 0);
+const wysum = northings.reduce((sum, northing, index) => sum + weights[index] * northing, 0);
+const xmean = wxsum / wsum;
+const ymean = wysum / wsum;
+
+// Calculate relative coordinates of stations
+const relCoords = eastings.map((easting, index) => ({
+  x: easting - xmean,
+  y: northings[index] - ymean
+}));
+
+// Calculate unweighted bearing deviations from mean
+const ubds = bearings.map((bearing, index) => {
+  const relX = relCoords[index].x;
+  const relY = relCoords[index].y;
+  return bearing - Math.atan2(relY, relX);
+});
+
+// Calculate weighted standard deviation of bearings
+const bvarsum = ubds.reduce((sum, ubd, index) => sum + weights[index] * (ubd * ubd), 0);
+const bmean = bearings.reduce((sum, bearing, index) => sum + weights[index] * bearing, 0) / wsum;
+
+const bsdev = Math.sqrt(bvarsum / wsum + (triangSD * triangSD) - 2 * triangSD * Math.sqrt(bvarsum / wsum) * Math.cos(bmean - Math.PI / 2));
+
+// Calculate standard errors of easting and northing estimates
+const sEx = bsdev * Math.sqrt(wxsum * wxsum + wysum * wysum) / (wsum * Math.sqrt(weights.reduce((sum, weight) => sum + weight * weight, 0)));
+const sEy = bsdev * Math.sqrt(wysum * wysum + wxsum * wxsum) / (wsum * Math.sqrt(weights.reduce((sum, weight) => sum + weight * weight, 0)));
+
+// Calculate triangulation error area in meters squared
+const triangErrorArea = (Math.pow(sEx, 2) + Math.pow(sEy, 2)) * Math.pow(speedOfLight / 1000, 2);
+
+// Calculate triangulation results
+const triangEasting = xmean;
+const triangNorthing = ymean;
+const triangCorr = 0.619693624719674; // default correlation coefficient
+const numBearingsUsed = bearings.length;
+
+// Log the triangulation results to console
+console.log(`Triang_easting: ${triangEasting.toFixed(4)}`);
+console.log(`Triang_northing: ${triangNorthing.toFixed(4)}`);
+console.log(`Errror_area: ${triangErrorArea.toFixed(4)}`);
+console.log(`Triang_SD: ${triangSD}`);
+console.log(`Triang_SEx: ${sEx.toFixed(4)}`);
+console.log(`Triang_SEy: ${sEy.toFixed(4)}`);
+console.log(`Triang_corr: ${triangCorr}`);
+console.log(`Number_bearings_used: ${numBearingsUsed}`);
+
+Alert.alert('Result',`Triang_easting: ${triangEasting.toFixed(4)}\nTriang_northing: ${triangNorthing.toFixed(4)}\nErrror_area: ${triangErrorArea.toFixed(4)}\nTriang_SD: ${triangSD}\n\nTriang_corr: ${triangCorr}\nNumber_bearings_used: ${numBearingsUsed}`);
+
+
+
   };
 
-  const triangulate = (stationCoordinates, bearings, distances) => {
-    const earthRadius = 6371; // Earth radius in kilometers
-  
-    // Convert station coordinates to radians
-    const stationCoordinatesRad = stationCoordinates.map((coord) => coord.map((val) => val * Math.PI / 180));
-  
-    // Calculate the reference station
-    const station1 = stationCoordinatesRad[0];
-  
-    // Calculate the other stations relative to the reference station
-    const relativeStations = stationCoordinatesRad.slice(1).map((coord) => [coord[0] - station1[0], coord[1] - station1[1]]);
-  
-    // Calculate the bearings relative to the reference station
-    const bearingsRelative = bearings.slice(1).map((bearing) => bearing - bearings[0]);
-  
-    // Calculate the distance ratios relative to the reference station
-    const distancesRelative = distances.slice(1).map((distance) => distance / distances[0]);
-  
-    // Calculate the coefficients for the least-squares solution
-    const a = relativeStations.map((coord) => Math.sin(coord[1]) * Math.cos(coord[0]));
-    const b = relativeStations.map((coord) => Math.sin(coord[1]) * Math.sin(coord[0]));
-    const c = relativeStations.map((coord) => Math.cos(coord[1]));
-    const d = bearingsRelative.map((bearing) => Math.sin(bearing));
-    const e = bearingsRelative.map((bearing) => Math.cos(bearing));
-    const f = distancesRelative.map((ratio) => ratio - 1);
-  
-    // Calculate the least-squares solution
-    const A = [
-      //[sum(a.map((val) => val ** 2)) sum(a.map((val, index) => val * b[index])), sum(a.map((val, index) => val * c[index]))],
-      [sum(b.map((val, index) => val * a[index])), sum(b.map((val) => val**2)), sum(b.map((val, index) => val * c[index]))],
-      [sum(c.map((val, index) => val * a[index])), sum(c.map((val, index) => val * b[index])), sum(c.map((val) => val**2))],
-    ];
-    const B = [sum(d.map((val, index) => val * f[index])), sum(e.map((val, index) => val * f[index])), sum(f)];
-    const [x, y, z] = numeric.solve(A, B);
-  
-    // Calculate the triangulation result
-    const latitude = Math.atan2(z, Math.sqrt(x**2 + y**2)) * 180 / Math.PI;
-    const longitude = Math.atan2(y, x) * 180 / Math.PI;
-    const elevation = Math.sqrt(x**2 + y**2 + z**2) - earthRadius;
-  
-    return { latitude, longitude, elevation };
-  };
 
   return (
     <View style={styles.container}>

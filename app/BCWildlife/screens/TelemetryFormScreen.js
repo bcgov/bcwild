@@ -5,6 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { getUsernameG } from '../global';
 import RecordsRepo from '../utility/RecordsRepo';
+import { getTelemetryStr,setTelemetryStr } from '../global';
 
 
 
@@ -26,6 +27,7 @@ const TelemetryFormScreen = ({navigation}) => {
     const [useTriangulation,setUseTriangulation] = useState('');
     const [comments, setComments] = React.useState('');
     const [recordIdentifier, setRecordIdentifier] = React.useState('');
+    const [triangulationText, setTriangulationText] = React.useState('');
 
 
   useEffect(() => {
@@ -232,29 +234,39 @@ const TelemetryFormScreen = ({navigation}) => {
         return;
     }
 
-
+    if(getTelemetryStr() == ''){
+      // do nothing
+    }else{
+      setTriangulationText(getTelemetryStr());
+    }
   
     const data = {
-      dateTime: dateTime,
-      surveyId: surveyId,
-      locationId: locationId,
-      selectedValueProject: selectedValueProject,
+      date: dateTime,
+      survey_id: surveyId,
+      location_id: locationId,
+      project_id: selectedValueProject,
       reuse: reuse,
-      firstLocation: firstLocation,
-      animalId: animalId,
-      ambientTemprature: ambientTemprature,
-      cloudCover: cloudCover,
-      precipitation: precipitation,
-      windSpeed: windSpeed,
-      elementIdentified: elementIdentified,
-      comments: comments,
+      first_location_id: firstLocation,
+      animal_id: animalId,
+      ambient_temperature: ambientTemprature,
+      cloud_cover: cloudCover,
+      precip: precipitation,
+      wind: windSpeed,
+      element_identified: elementIdentified,
+      location_comments: comments,
+      triangulation:triangulationText
     };
     var recordsValue = JSON.stringify(data);
     console.log(recordsValue);
-    RecordsRepo.saveRecord(recordIdentifier, recordsValue);
+    var timeNowEpoch = Math.round((new Date()).getTime() / 1000);
+        console.log(timeNowEpoch);
+        var username = getUsernameG();
+        var recordIdentifier ='TELE_' + username + '_' + timeNowEpoch;
+        setRecordIdentifier(recordIdentifier);
+    RecordsRepo.addRecord(recordIdentifier, recordsValue);
     setDefaultValues();
+    setTelemetryStr('');
     Alert.alert('Record saved successfully');
-
   }
 
   const handleTriangulation = () => {
@@ -367,7 +379,7 @@ const TelemetryFormScreen = ({navigation}) => {
               <Text style={styles.inputLabel}>First Location id at this site</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter Survey ID"
+                placeholder="Enter Location ID"
                 keyboardType="default"
                 value={firstLocation}
                 onChangeText={(text) => setFirstLocation(text)}
