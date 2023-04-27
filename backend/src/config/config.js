@@ -12,7 +12,7 @@ const pass = (process.env.DB_PASSWORD)
            
 module.exports = {
     app_setting: {
-        port: process.env.SERVER_PORT,
+        port: process.env.SERVER_PORT ||4000,
         appName: process.env.SERVER_NAME,
         env: process.env.NODE_ENV || 'development',
     },

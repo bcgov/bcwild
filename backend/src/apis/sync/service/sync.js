@@ -34,18 +34,30 @@ const pushChanges = async (req) => {
 }
 const pullChanges = async (req) => {
     let { lastPulledAt } = req.body;
+<<<<<<< HEAD
+    lastPulledAt =new Date(lastPulledAt).toISOString()
+    const { username } = req.decoded
+    var telemetryData = customFindAll(Telemetry, { project_id: ["Project1","Project2"], updatedAt: { [Op.gt]: lastPulledAt }})
+    
+    var cameraTrapData = customFindAll(CameraTrapData, { project_id: ["Project1","Project2"], updatedAt: { [Op.gt]: lastPulledAt }})
+=======
     lastPulledAt = new Date(lastPulledAt).toISOString()
     const { username } = req.decoded
     var telemetryData = customFindAll(Telemetry, { project_id: ["Project1", "Project2"], updatedAt: { [Op.gt]: lastPulledAt } })
 
     var cameraTrapData = customFindAll(CameraTrapData, { project_id: ["Project1", "Project2"], updatedAt: { [Op.gt]: lastPulledAt } })
+>>>>>>> dda903508a3e360e9fe41f42fa1bc1e1e40d5ca1
 
     //var bearingData = customFindAll(Bearing, { username: username, updatedAt: { [Op.gt]: lastPulledAt }})
 
     let result = await Promise.all([telemetryData, cameraTrapData]);
     [telemetryData, cameraTrapData] = result
 
+<<<<<<< HEAD
+    return {telemetryData, cameraTrapData}
+=======
     return { telemetryData, cameraTrapData }
+>>>>>>> dda903508a3e360e9fe41f42fa1bc1e1e40d5ca1
 }
 
 module.exports = {
