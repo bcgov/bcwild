@@ -17,40 +17,40 @@ const CameraTrapData = db.sequelize.define(
             type: Sequelize.STRING(50),
         },
         project_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         survey_id: {
-            type: Sequelize.STRING(20)
+            type: Sequelize.STRING(50)
         },
         field_crew: {
             type: Sequelize.STRING(50),
         },
         date_time:{
-            type: Sequelize.DATE
+            type: Sequelize.STRING(50)
         },
         station_id: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         deploy_check: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         station_northing: {
-            type: Sequelize.STRING(100),
+            type: Sequelize.STRING(50),
         },
         station_easting: {
-            type: Sequelize.STRING(100),
+            type: Sequelize.STRING(50),
         },
         camera_attached: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         security_box: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         camera_height: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         camera_compass_direction: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         camera_id: {
             type: Sequelize.STRING(50),
@@ -68,7 +68,7 @@ const CameraTrapData = db.sequelize.define(
             type: Sequelize.STRING(50),
         },
         visibility: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         habitat_type: {
             type: Sequelize.STRING(50),
@@ -77,25 +77,25 @@ const CameraTrapData = db.sequelize.define(
             type: Sequelize.STRING(50),
         },
         distant_feature: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         quiet_period: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         trigger_sensitivity: {
             type: Sequelize.STRING(50),
         },
         trigger_timing: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         photos_trigger: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         bait_lure: {
             type: Sequelize.STRING(50),
         },
         camera_active: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         comments: {
             type: Sequelize.TEXT,
@@ -104,34 +104,34 @@ const CameraTrapData = db.sequelize.define(
             type: Sequelize.TEXT,
         },
         number_of_photos: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         battery_percent: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING(50),
         },
         purpose_visit: {
             type: Sequelize.STRING(50),
         },
         camera_removed: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         camera_replaced: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         batteries_replaced: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         sd_card_replaced: {
-            type: Sequelize.BOOLEAN,
+            type: Sequelize.STRING(50),
         },
         photos: {
             type: Sequelize.TEXT,
         },
         created_by:{
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         },
         updated_by:{
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(50),
         }
     },
     { timestamps: true,underscored:true }
