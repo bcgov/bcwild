@@ -51,6 +51,9 @@ jobs:
           cd BCWildlife
           npm install
           cd ../
+          
+      - name: Patch package
+        run: npx patch-package     
 
       - name: Install CocoaPods dependencies
         run: |
