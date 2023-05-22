@@ -122,7 +122,6 @@ jobs:
       - name: Build iOS app
         run: 
           xcodebuild -workspace BCWild.xcworkspace -scheme BCWild -configuration Release -sdk iphoneos build
-          cd ../../
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
