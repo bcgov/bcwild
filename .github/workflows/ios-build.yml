@@ -103,12 +103,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dd-xcode-${{ env.cacheId }}-
 
-      - name: Install react native dependencies
-        working-directory: ./
-        run: |
-          npm ci && \
-          git status
 
+      - name: Install react native dependencies
+        working-directory: bcgov/bcwild/app/BCWildlife
+        run: |
+          npm ci
+          git status
+          
       - name: Install iOS dependencies
         # if: steps.pod-cache.outputs.cache-hit != 'true' || steps.npm-cache.outputs.cache-hit != 'true'
         working-directory: app/ios
