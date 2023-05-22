@@ -50,20 +50,17 @@ jobs:
           cd app
           cd BCWildlife
           npm install
-          cd ../
           
       - name: Patch package
         run: npx patch-package     
 
       - name: Install CocoaPods dependencies
         run: |
-          cd app/BCWildlife/ios
+          cd ios
           pod install
-          cd ../../
 
       - name: Build iOS app
-        run: |
-          cd app/BCWildlife/ios
+        run: 
           xcodebuild -workspace BCWild.xcworkspace -scheme BCWild -configuration Release -sdk iphoneos build
           cd ../../
 
