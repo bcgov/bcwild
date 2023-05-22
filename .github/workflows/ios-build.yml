@@ -105,14 +105,14 @@ jobs:
 
 
       - name: Install react native dependencies
-        working-directory: bcgov/bcwild/app/BCWildlife
+        working-directory: app/BCWildlife
         run: |
           npm ci
           git status
           
       - name: Install iOS dependencies
         # if: steps.pod-cache.outputs.cache-hit != 'true' || steps.npm-cache.outputs.cache-hit != 'true'
-        working-directory: app/ios
+        working-directory: app/BCWildlife/ios
         run: |
           gem install cocoapods && \
           pod install && \
