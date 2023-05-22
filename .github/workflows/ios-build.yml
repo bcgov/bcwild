@@ -120,6 +120,8 @@ jobs:
           git diff Podfile.lock
           
       - name: Build iOS app
+        working-directory: app/BCWildlife/ios
+
         run: 
           xcodebuild -workspace BCWild.xcworkspace -scheme BCWild -configuration Release -sdk iphoneos build
 
