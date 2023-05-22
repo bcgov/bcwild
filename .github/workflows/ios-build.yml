@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      - name: Change directory
+        run: cd ./app/BCWildlife   
+        
       - name: Install the Apple certificate and provisioning profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -46,10 +50,7 @@ jobs:
           node-version: '16.x'
 
       - name: Install dependencies
-        run: |
-          cd app
-          cd BCWildlife
-          npm install
+        run: npm install
           
       - name: Patch package
         run: npx patch-package     
