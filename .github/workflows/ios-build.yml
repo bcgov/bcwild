@@ -17,7 +17,7 @@ jobs:
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.KEYCHIAN_PASSWD }}
-          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROD_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           # create variables
@@ -103,15 +103,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dd-xcode-${{ env.cacheId }}-
 
-      - name: Install react native dependencies
-        working-directory: ./
-        run: |
-          npm ci && \
-          git status
 
+      - name: Install react native dependencies
+        working-directory: app/BCWildlife
+        run: |
+          npm ci
+          git status
+          
       - name: Install iOS dependencies
         # if: steps.pod-cache.outputs.cache-hit != 'true' || steps.npm-cache.outputs.cache-hit != 'true'
-        working-directory: app/ios
+        working-directory: app/BCWildlife/ios
         run: |
           gem install cocoapods && \
           pod install && \
@@ -119,9 +120,10 @@ jobs:
           git diff Podfile.lock
           
       - name: Build iOS app
+        working-directory: app/BCWildlife/ios
+
         run: 
           xcodebuild -workspace BCWild.xcworkspace -scheme BCWild -configuration Release -sdk iphoneos build
-          cd ../../
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
