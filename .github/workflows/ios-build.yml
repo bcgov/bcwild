@@ -129,6 +129,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ios-build
-          path: app/BCWildlife/ios/build/<app-name>.ipa    
+          path: app/BCWildlife/ios/build/BCWild.ipa    
 
 
