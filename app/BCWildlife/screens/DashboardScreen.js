@@ -21,6 +21,7 @@ const DashboardScreen = ({route,navigation}) => {
       let token = getAccessToken();
     let AuthStr = 'Bearer '.concat(token);
     const config = { headers: { Authorization: AuthStr } };
+
       try {
         const response = await AxiosUtility.get(getuserdetails_url, config);
           setProjects(response.data.projects);
@@ -38,7 +39,7 @@ const DashboardScreen = ({route,navigation}) => {
           //showAlertOnly('Error',error.response.data.message);
         } else {
           console.log('Error message:', error.message);
-          //showAlertOnly('Error',error.response.data.message);
+          //removed alert unnecessary
         }
       } finally {
         setLoading(false);
@@ -208,6 +209,7 @@ const DashboardScreen = ({route,navigation}) => {
 };
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     flexDirection: 'row',
