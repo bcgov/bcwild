@@ -133,7 +133,7 @@ jobs:
           -scheme BCWild \
           -configuration Release \
           -derivedDataPath xbuild \
-          -xcconfig ../../release.xcconfig \
+          -xcconfig release.xcconfig \
           -archivePath BCWild.xcarchive \
           -sdk iphoneos \
           -verbose \
@@ -146,7 +146,7 @@ jobs:
           -exportArchive \
           -archivePath BCWild.xcarchive \
           -exportPath export \
-          -exportOptionsPlist ../../options.plist \
+          -exportOptionsPlist ExportOptions.plist \
           -verbose     
 
       - name: Upload artifact
