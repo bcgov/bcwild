@@ -74,35 +74,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-        # GitHub recommends not caching node_modules but rather
-        # .npm because it can break across Node versions and
-        #  won't work with npm ci.
-      - name: Cache node modules
-        uses: actions/cache@v1
-        id: npm-cache
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ env.cacheId }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ env.cacheId }}-
-
-      - name: Cache pod dependencies
-        id: pod-cache
-        uses: actions/cache@v1
-        with:
-          path: app/ios/Pods
-          key: ${{ runner.os }}-pods-${{ env.cacheId }}-${{ hashFiles('**/Podfile.lock ') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-${{ env.cacheId }}-
-
-      - name: Cache derived data
-        uses: actions/cache@v1
-        with:
-          path: app/ios/xbuild/Build
-          key: ${{ runner.os }}-dd-xcode-${{ env.cacheId }}-${{ hashFiles('**/dd-cache-key.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-dd-xcode-${{ env.cacheId }}-
-
 
       - name: Install react native dependencies
         working-directory: app/BCWildlife
