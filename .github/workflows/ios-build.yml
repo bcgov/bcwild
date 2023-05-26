@@ -2,17 +2,16 @@ name: iOS Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: macOS-latest
 
     steps:
-    
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Install the Apple certificate and provisioning profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -41,7 +40,7 @@ jobs:
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-          
+
       - name: Pull & update submodules recursively
         run: |
           git submodule update --init --recursive
@@ -74,12 +73,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      - name: Clean Xcode project
+        run: |
+          xcodebuild clean -workspace app/BCWild.xcworkspace -scheme BCWild
 
       - name: Install react native dependencies
         working-directory: app/BCWildlife
         run: |
           npm ci
           git status
+          
           
       - name: Install iOS dependencies
         # if: steps.pod-cache.outputs.cache-hit != 'true' || steps.npm-cache.outputs.cache-hit != 'true'
@@ -89,35 +92,33 @@ jobs:
           pod install && \
           git status && \
           git diff Podfile.lock
-                    
+
       - name: Release build
         working-directory: app/BCWildlife/ios
         run: |
           xcodebuild \
-          -workspace BCWild.xcworkspace \
-          -scheme BCWild \
-          -configuration Release \
-          -derivedDataPath xbuild \
-          -xcconfig release.xcconfig \
-          -archivePath BCWild.xcarchive \
-          -sdk iphoneos \
-          -verbose \
-          archive    
-          
+            -workspace BCWild.xcworkspace \
+            -scheme BCWild \
+            -configuration Release \
+            -derivedDataPath xbuild \
+            -xcconfig release.xcconfig \
+            -archivePath BCWild.xcarchive \
+            -sdk iphoneos \
+            -verbose \
+            archive
+
       - name: Archive & Sign
         working-directory: app/BCWildlife/ios
         run: |
           xcodebuild \
-          -exportArchive \
-          -archivePath BCWild.xcarchive \
-          -exportPath export \
-          -exportOptionsPlist ExportOptions.plist \
-          -verbose     
+            -exportArchive \
+            -archivePath BCWild.xcarchive \
+            -exportPath export \
+            -exportOptionsPlist ExportOptions.plist \
+            -verbose     
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ios-build
-          path: app/BCWildlife/ios/build/BCWild.ipa    
-
-
+          path: app/BCWildlife/ios/export/BCWild.ipa
