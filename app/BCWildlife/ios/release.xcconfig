@@ -1,0 +1,18 @@
+// Basic Xcode configuration settings
+
+// The name of your application
+PRODUCT_NAME = BC WildApp
+
+// Your unique application identifier
+PRODUCT_BUNDLE_IDENTIFIER = ca.bc.gov.bcwild
+
+// Versioning
+CURRENT_PROJECT_VERSION = 1.0
+
+// Signing
+CODE_SIGN_STYLE = Manual
+DEVELOPMENT_TEAM = L796QSLV3E
+PROVISIONING_PROFILE_SPECIFIER = BC WILD - 2023 
+
+// Build settings
+ENABLE_BITCODE = NO
