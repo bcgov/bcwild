@@ -74,8 +74,9 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Clean Xcode project
+        working-directory: app/BCWildlife/ios
         run: |
-          xcodebuild clean -workspace app/BCWild.xcworkspace -scheme BCWild
+          xcodebuild clean -workspace BCWild.xcworkspace -scheme BCWild
 
       - name: Install react native dependencies
         working-directory: app/BCWildlife
